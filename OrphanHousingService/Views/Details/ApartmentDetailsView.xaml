@@ -1,0 +1,53 @@
+﻿<Window x:Class="OrphanHousingService.Views.Details.ApartmentDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OrphanHousingService.Views.Details"
+        mc:Ignorable="d"
+        Title="ApartmentDetailsView" Height="450" Width="800">
+    <Grid Margin="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Адрес:" Grid.Row="0" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.Address}" Grid.Row="0" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Кадастровый номер:" Grid.Row="1" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.CadastralNumber}" Grid.Row="1" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Площадь:" Grid.Row="2" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.Area}" Grid.Row="2" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Количество комнат:" Grid.Row="3" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.RoomsCount}" Grid.Row="3" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Статус:" Grid.Row="4" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.StatusDisplay}" Grid.Row="4" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата включения:" Grid.Row="5" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.IncludedToFundDate, StringFormat=dd.MM.yyyy}" Grid.Row="5" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Приказ №:" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.InclussionOrderNumber}" Grid.Row="6" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата приказа:" Grid.Row="7" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Apartment.InclussionOrderDate, StringFormat=dd.MM.yyyy}" Grid.Row="7" Grid.Column="1" Margin="0,5"/>
+
+    </Grid>
+</Window>

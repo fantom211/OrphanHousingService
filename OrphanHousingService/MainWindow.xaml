@@ -1,0 +1,122 @@
+﻿<Window x:Class="OrphanHousingService.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OrphanHousingService"
+        mc:Ignorable="d"
+        Title="MainWindow"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Height="1080"
+        Width="1920">
+
+    
+
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT SIDEBAR -->
+        <Border Grid.Column="0"
+                Background="#111827"
+                Padding="15">
+
+            <StackPanel>
+
+                <TextBlock Text="DEMO SYSTEM"
+                           Foreground="White"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Margin="5,10,5,20"/>
+
+                <Button Content="Договоры"
+                        Command="{Binding OpenContractsCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
+                <Button Content="Квартиры"
+                        Command="{Binding OpenApartmentsCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
+                <Button Content="Люди"
+                        Command="{Binding OpenPeopleCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
+                <Button Content="История квартир"
+                        Command="{Binding OpenApartmentStatusHistoryCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
+                <Button Content="Заявления"
+                        Command="{Binding OpenApplicationsCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+                
+                <Button Content="Решения комиссии"
+                        Command="{Binding OpenCommissionDecisionsCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
+            </StackPanel>
+        </Border>
+
+        <!-- MAIN AREA -->
+        <Grid Grid.Column="1"
+              Margin="15">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- TOP BAR -->
+            <Border Background="White"
+        CornerRadius="8"
+        Padding="10"
+        Margin="0,0,0,10">
+
+                <StackPanel>
+
+                    <!-- кнопки -->
+                    <StackPanel Orientation="Horizontal">
+
+                        <Button Content="Добавить"
+                    Command="{Binding CurrentViewModel.AddCommand}"
+                    Style="{StaticResource ToolbarButton}"/>
+
+                        <Button Content="Редактировать"
+                    Command="{Binding CurrentViewModel.EditCommand}"
+                    Style="{StaticResource ToolbarButton}"/>
+
+                        <Button Content="Удалить"
+                    Command="{Binding CurrentViewModel.DeleteCommand}"
+                    Style="{StaticResource ToolbarButton}"/>
+
+                    </StackPanel>
+
+                    <!-- разделитель -->
+                    <Border Height="1"
+                Background="#E5E7EB"
+                Margin="0,10,0,0"/>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- CONTENT -->
+            <Border Grid.Row="1"
+                    Background="White"
+                    CornerRadius="8"
+                    Padding="10">
+
+                <ContentControl Content="{Binding CurrentViewModel}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"/>
+
+            </Border>
+
+        </Grid>
+
+    </Grid>
+</Window>

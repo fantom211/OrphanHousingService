@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="OrphanHousingService.Views.CommissionDecisionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+
+        <DataGrid IsReadOnly="True"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding CommissionDecisions}"
+                  SelectedItem="{Binding SelectedCommissionDecision}">
+
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Header="Номер заявки"
+                                    Binding="{Binding Application.ApplicationNumber}" />
+
+                <DataGridTextColumn Header="Тип решения"
+                                    Binding="{Binding DisplayDecisionType}" />
+
+                <DataGridTextColumn Header="Номер решения"
+                                    Binding="{Binding DecisionNumber}" />
+
+                <DataGridTextColumn Header="Дата решения"
+                                    Binding="{Binding DecisionDate}" />
+
+                <DataGridTextColumn Header="Результат"
+                                    Binding="{Binding DisplayResult}" />
+
+                <DataGridTextColumn Header="Причина"
+                                    Binding="{Binding Reason}" />
+
+                <DataGridTextColumn Header="Комментарий"
+                                    Binding="{Binding Comment}" />
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </Grid>
+</UserControl>

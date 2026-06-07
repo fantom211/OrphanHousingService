@@ -1,0 +1,102 @@
+﻿<Window x:Class="OrphanHousingService.Views.CrudViews.ApartmentStatusHistoryDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OrphanHousingService.Views.CrudViews"
+        mc:Ignorable="d"
+        Title="ApartmentStatusHistoryDetailsView" Height="450" Width="800">
+    <Grid Margin="20">
+
+        <StackPanel>
+
+            <!-- Квартира -->
+            <Border BorderBrush="#D0D0D0"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10"
+                    Margin="0,0,0,10">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Квартира:"
+                               FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Address}"
+                               TextWrapping="Wrap"/>
+                </Grid>
+
+            </Border>
+
+            <!-- Статус -->
+            <Border BorderBrush="#D0D0D0"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10"
+                    Margin="0,0,0,10">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Статус:"
+                               FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Status}"/>
+                </Grid>
+
+            </Border>
+
+            <!-- Основание -->
+            <Border BorderBrush="#D0D0D0"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10"
+                    Margin="0,0,0,10">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Основание:"
+                               FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Basis}"
+                               TextWrapping="Wrap"/>
+                </Grid>
+
+            </Border>
+
+            <!-- Комментарий -->
+            <Border BorderBrush="#D0D0D0"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Комментарий:"
+                               FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Comment}"
+                               TextWrapping="Wrap"/>
+                </Grid>
+
+            </Border>
+
+        </StackPanel>
+
+    </Grid>
+</Window>
