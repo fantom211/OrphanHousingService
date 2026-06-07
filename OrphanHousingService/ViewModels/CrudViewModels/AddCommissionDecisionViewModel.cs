@@ -5,14 +5,9 @@ using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
+using OrphanHousingService.ViewModels.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Contract = OrphanHousingService.Models.Application;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
 {
@@ -21,6 +16,8 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         private readonly CommissionDecisionService _commissionDecisionService;
         private readonly ApplicationService _applicationService;
         private readonly ContractWorkFlowService _workflowService;
+        private Guid? _editId;
+
         [ObservableProperty]
         private ObservableCollection<Application> applications = [];
 
@@ -31,14 +28,19 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             EnumHelper.GetItems<DecisionResult>();
 
         [ObservableProperty]
-        private Application? selectedApplication;
+        private string windowTitle = "Добавить решение комиссии";
 
+        [ObservableProperty]
+        private Application? selectedApplication;
 
         [ObservableProperty]
         private DecisionType currentDecisionType;
 
         [ObservableProperty]
         private string decisionNumber = string.Empty;
+
+        [ObservableProperty]
+        private string suggestedDecisionNumber = string.Empty;
 
         [ObservableProperty]
         private DateTime decisionDate = DateTime.Today;
@@ -52,46 +54,97 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [ObservableProperty]
         private string? comment;
 
+        public bool IsEditMode => _editId.HasValue;
+        public bool IsApplicationEditable => !IsEditMode;
+
         public Action<bool>? CloseAction { get; set; }
 
         public AddCommissionDecisionViewModel(
-            CommissionDecisionService commissionDecisionService, ApplicationService applicationService, ContractWorkFlowService workflowService)
+            CommissionDecisionService commissionDecisionService,
+            ApplicationService applicationService,
+            ContractWorkFlowService workflowService)
         {
             _commissionDecisionService = commissionDecisionService;
             _applicationService = applicationService;
             _workflowService = workflowService;
-
+            SuggestedDecisionNumber = _commissionDecisionService.GenerateNumber();
             _ = LoadAsync();
-            
         }
+
+        public void InitializeForEdit(CommissionDecision decision)
+        {
+            _editId = decision.Id;
+            WindowTitle = "Редактировать решение комиссии";
+            DecisionNumber = decision.DecisionNumber;
+            DecisionDate = decision.DecisionDate;
+            Reason = decision.Reason;
+            Comment = decision.Comment;
+            OnPropertyChanged(nameof(IsApplicationEditable));
+            _ = ApplyApplicationAsync(decision.ApplicationId);
+        }
+
+        private async Task ApplyApplicationAsync(Guid applicationId)
+        {
+            if (Applications.Count == 0)
+                await LoadAsync();
+
+            SelectedApplication = Applications.FirstOrDefault(a => a.Id == applicationId);
+        }
+
         private async Task LoadAsync()
         {
-            var applications = await _applicationService.GetAllAsync();
+            var items = await _applicationService.GetAllAsync();
 
-            foreach (var a in applications)
+            Applications.Clear();
+            foreach (var a in items)
                 Applications.Add(a);
         }
-
 
         [RelayCommand]
         private async Task Save()
         {
-            var entity = new CommissionDecision
+            try
             {
-                ApplicationId = SelectedApplication!.Id,
-                DecisionType = CurrentDecisionType,
-                DecisionNumber = DecisionNumber,
-                DecisionDate = DecisionDate,
-                Result = CurrentResult,
-                Reason = Reason,
-                Comment = Comment
-            };
+                if (IsEditMode)
+                {
+                    var entity = new CommissionDecision
+                    {
+                        Id = _editId!.Value,
+                        DecisionNumber = string.IsNullOrWhiteSpace(DecisionNumber)
+                            ? SuggestedDecisionNumber
+                            : DecisionNumber,
+                        DecisionDate = DecisionDate,
+                        Reason = Reason,
+                        Comment = Comment
+                    };
 
-            await _commissionDecisionService.CreateAsync(entity);
+                    await _commissionDecisionService.UpdateAsync(entity);
+                }
+                else
+                {
+                    var entity = new CommissionDecision
+                    {
+                        ApplicationId = SelectedApplication!.Id,
+                        DecisionType = CurrentDecisionType,
+                        DecisionNumber = string.IsNullOrWhiteSpace(DecisionNumber)
+                            ? SuggestedDecisionNumber
+                            : DecisionNumber,
+                        DecisionDate = DecisionDate,
+                        Result = CurrentResult,
+                        Reason = Reason,
+                        Comment = Comment
+                    };
 
-            await _workflowService.RegisterDecisionAsync(entity);
+                    await _commissionDecisionService.CreateAsync(entity);
+                    await _workflowService.RegisterDecisionAsync(entity);
+                }
 
-            CloseAction?.Invoke(true);
+                CloseAction?.Invoke(true);
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]

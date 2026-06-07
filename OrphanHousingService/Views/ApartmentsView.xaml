@@ -1,19 +1,28 @@
 ﻿<UserControl x:Class="OrphanHousingService.Views.ApartmentsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OrphanHousingService.Views"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviors="clr-namespace:OrphanHousingService.Behaviors"
-        mc:Ignorable="d"
+        xmlns:controls="clr-namespace:OrphanHousingService.Views.Controls"
         HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch"
-        >
+        VerticalAlignment="Stretch">
     <Grid>
-        <DataGrid 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SearchPanel Grid.Row="0"/>
+
+        <DataGrid Grid.Row="1"
+            x:Name="ApartmentsDataGrid"
             Style="{StaticResource ModernDataGrid}"
-            IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Apartments}" SelectedItem="{Binding SelectedApartment}">
+            IsReadOnly="True"
+            AutoGenerateColumns="False"
+            CanUserSortColumns="True"
+            ItemsSource="{Binding Apartments}"
+            SelectedItem="{Binding SelectedApartment}"
+            PreviewMouseRightButtonDown="ApartmentsDataGrid_PreviewMouseRightButtonDown">
 
             <i:Interaction.Behaviors>
                 <behaviors:DataGridScrollIntoViewBehavior />
@@ -24,32 +33,30 @@
                               Command="{Binding OpenDetailsCommand}" />
             </DataGrid.InputBindings>
 
+            <DataGrid.ContextMenu>
+                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="Добавить договор"
+                              Command="{Binding AddContractCommand}" />
+                    <Separator />
+                    <MenuItem Header="Перевести в соц. найм"
+                              Command="{Binding TransferToSocialRentCommand}" />
+                    <MenuItem Header="Перевести в спец. жилой фонд"
+                              Command="{Binding TransferToSpecialFundCommand}" />
+                    <MenuItem Header="Приватизация"
+                              Command="{Binding PrivatizeCommand}" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
             <DataGrid.Columns>
-                <DataGridTextColumn
-                    Header="Адрес"
-                    Binding="{Binding Address}"/>
-                <DataGridTextColumn
-                    Header="Кадастровый номер"
-                    Binding="{Binding CadastralNumber}"/>
-                <DataGridTextColumn
-                    Header="Площадь (м²)"
-                    Binding="{Binding Area}"/>
-                <DataGridTextColumn
-                    Header="Кол-во комнат"
-                    Binding="{Binding RoomsCount}"/>
-
+                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}"/>
+                <DataGridTextColumn Header="Кадастровый номер" Binding="{Binding CadastralNumber}"/>
+                <DataGridTextColumn Header="Площадь (м²)" Binding="{Binding Area}"/>
+                <DataGridTextColumn Header="Кол-во комнат" Binding="{Binding RoomsCount}"/>
                 <DataGridTextColumn Header="Статус" Binding="{Binding StatusDisplay}"/>
-
-                <DataGridTextColumn
-                    Header="Дата включения в фонд"
-                    Binding="{Binding IncludedToFundDate}"/>  
-                <DataGridTextColumn
-                    Header="Номер договора включения в фонд"
-                    Binding="{Binding InclussionOrderNumber}"/>  
-                <DataGridTextColumn
-                    Header="Дата заключения договора"
-                    Binding="{Binding InclussionOrderDate}"/>  
-                   
+                <DataGridTextColumn Header="Дата включения в фонд" Binding="{Binding IncludedToFundDate, StringFormat=dd.MM.yyyy}"/>
+                <DataGridTextColumn Header="Номер договора включения" Binding="{Binding InclussionOrderNumber}"/>
+                <DataGridTextColumn Header="Дата заключения договора" Binding="{Binding InclussionOrderDate, StringFormat=dd.MM.yyyy}"/>
+                <DataGridTextColumn Header="Добавлена" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Repository;
 using System;
 using System.Collections.Generic;
@@ -45,10 +46,19 @@ namespace OrphanHousingService.Services.Helpers
 
         public async Task AddAsync(T entity)
         {
+            if (entity is IHasCreatedAt withCreatedAt && withCreatedAt.CreatedAt == default)
+                withCreatedAt.CreatedAt = DateTime.UtcNow;
+
             await ValidateAsync(entity);
 
             await _context.Set<T>().AddAsync(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(T entity)
+        {
+            await ValidateAsync(entity);
+            await SaveChangesAsync();
         }
 
         public async Task RemoveAsync(T entity)

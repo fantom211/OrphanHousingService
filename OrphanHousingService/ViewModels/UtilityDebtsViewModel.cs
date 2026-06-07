@@ -9,19 +9,24 @@ using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
 using OrphanHousingService.Views.Details;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class UtilityDebtsViewModel : ObservableObject, ICrudViewModel
+    public partial class UtilityDebtsViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly UtilityDebtService _utilityDebtService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ListCollectionManager<UtilityDebt> _listManager;
 
-        public ObservableCollection<UtilityDebt> UtilityDebts { get; } = [];
+        public ICollectionView UtilityDebts => _listManager.View;
 
         [ObservableProperty]
         private UtilityDebt? selectedUtilityDebt;
+
+        [ObservableProperty]
+        private string? searchText;
 
         public UtilityDebtsViewModel(
             UtilityDebtService utilityDebtService,
@@ -29,24 +34,28 @@ namespace OrphanHousingService.ViewModels
         {
             _utilityDebtService = utilityDebtService;
             _serviceProvider = serviceProvider;
+            _listManager = new ListCollectionManager<UtilityDebt>(d => new[]
+            {
+                d.Contract?.ContractNumber,
+                d.Contract?.Person?.FullName,
+                d.Contract?.Apartment?.Address,
+                d.Reason
+            });
             _ = LoadAsync();
         }
 
+        partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
+
         public async Task LoadAsync()
         {
-            UtilityDebts.Clear();
-
             var items = await _utilityDebtService.GetAllAsync();
-
-            foreach (var item in items)
-                UtilityDebts.Add(item);
+            _listManager.SetItems(items);
         }
 
         [RelayCommand]
         private async void Add()
         {
             var window = _serviceProvider.GetRequiredService<AddUtilityDebtView>();
-
             window.Owner = System.Windows.Application.Current.MainWindow;
 
             if (window.ShowDialog() == true)
@@ -54,13 +63,41 @@ namespace OrphanHousingService.ViewModels
         }
 
         [RelayCommand]
-        private void Edit()
+        private async void Edit()
         {
+            if (SelectedUtilityDebt == null)
+                return;
+
+            var vm = _serviceProvider.GetRequiredService<AddUtilityDebtViewModel>();
+            vm.InitializeForEdit(SelectedUtilityDebt);
+
+            var window = new AddUtilityDebtView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
         }
 
         [RelayCommand]
-        private void Delete()
+        private async void Delete()
         {
+            if (SelectedUtilityDebt == null)
+                return;
+
+            if (!CrudDialogHelper.ConfirmDelete($"долг {SelectedUtilityDebt.Amount}"))
+                return;
+
+            try
+            {
+                await _utilityDebtService.DeleteAsync(SelectedUtilityDebt.Id);
+                await LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]

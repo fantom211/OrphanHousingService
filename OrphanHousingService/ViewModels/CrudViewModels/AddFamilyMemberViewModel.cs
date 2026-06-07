@@ -5,20 +5,36 @@ using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
+using OrphanHousingService.ViewModels.Helpers;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
 {
+    public enum FamilyMemberCreationSource
+    {
+        Standalone,
+        FromContract,
+        FromPerson
+    }
+
     public partial class AddFamilyMemberViewModel : ObservableObject
     {
         private readonly FamilyMemberService _familyMemberService;
         private readonly ContractService _contractService;
         private Guid? _prefilledContractId;
+        private Guid? _editId;
 
         public ObservableCollection<Contract> Contracts { get; } = [];
+
+        [ObservableProperty]
+        private string windowTitle = "Добавить члена семьи";
+
+        [ObservableProperty]
+        private FamilyMemberCreationSource creationSource = FamilyMemberCreationSource.Standalone;
+
+        [ObservableProperty]
+        private string? citizenDisplayName;
 
         [ObservableProperty]
         private Contract? selectedContract;
@@ -26,7 +42,13 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [ObservableProperty]
         private bool isContractLocked;
 
-        public bool IsContractEditable => !IsContractLocked;
+        public bool IsContractEditable => !IsContractLocked && !IsEditMode;
+        public bool ShowCitizenInfo => CreationSource == FamilyMemberCreationSource.FromContract;
+        public bool ShowPersonSourceInfo => CreationSource == FamilyMemberCreationSource.FromPerson;
+        public bool ShowCitizenName => !string.IsNullOrWhiteSpace(CitizenDisplayName);
+
+        partial void OnCitizenDisplayNameChanged(string? value) =>
+            OnPropertyChanged(nameof(ShowCitizenName));
 
         [ObservableProperty]
         private string fullName = string.Empty;
@@ -36,6 +58,8 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
 
         [ObservableProperty]
         private RelationshipType relationshipType;
+
+        public bool IsEditMode => _editId.HasValue;
 
         public IReadOnlyList<EnumItem<RelationshipType>> RelationshipTypes { get; } =
             EnumHelper.GetItems<RelationshipType>();
@@ -53,7 +77,47 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
 
         public void InitializeForContract(Guid contractId)
         {
+            CreationSource = FamilyMemberCreationSource.FromContract;
+            WindowTitle = "Добавить члена семьи (по договору)";
             _prefilledContractId = contractId;
+            IsContractLocked = true;
+            OnPropertyChanged(nameof(IsContractEditable));
+            OnPropertyChanged(nameof(ShowCitizenInfo));
+            OnPropertyChanged(nameof(ShowPersonSourceInfo));
+            _ = ApplyPrefilledContractAsync();
+        }
+
+        public async void InitializeForPerson(Guid personId)
+        {
+            CreationSource = FamilyMemberCreationSource.FromPerson;
+            WindowTitle = "Добавить члена семьи (по гражданину)";
+            IsContractLocked = true;
+            OnPropertyChanged(nameof(IsContractEditable));
+            OnPropertyChanged(nameof(ShowCitizenInfo));
+            OnPropertyChanged(nameof(ShowPersonSourceInfo));
+
+            var contract = await _contractService.GetActiveContractForPersonAsync(personId);
+            if (contract == null)
+            {
+                ValidationDialogHelper.ShowError(
+                    new Exception("У гражданина нет активного договора"));
+                CloseAction?.Invoke(false);
+                return;
+            }
+
+            CitizenDisplayName = contract.Person?.FullName ?? "—";
+            _prefilledContractId = contract.Id;
+            await ApplyPrefilledContractAsync();
+        }
+
+        public void InitializeForEdit(FamilyMember member)
+        {
+            _editId = member.Id;
+            WindowTitle = "Редактировать члена семьи";
+            FullName = member.FullName;
+            BirthDate = member.BirthDate;
+            RelationshipType = member.RelationshipType;
+            _prefilledContractId = member.ContractId;
             IsContractLocked = true;
             OnPropertyChanged(nameof(IsContractEditable));
             _ = ApplyPrefilledContractAsync();
@@ -73,6 +137,9 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
                 await LoadAsync();
 
             SelectedContract = Contracts.FirstOrDefault(c => c.Id == _prefilledContractId.Value);
+
+            if (CreationSource == FamilyMemberCreationSource.FromContract)
+                CitizenDisplayName = SelectedContract?.Person?.FullName ?? "—";
         }
 
         private async Task LoadAsync()
@@ -90,16 +157,28 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [RelayCommand]
         private async Task Save()
         {
-            var member = new FamilyMember
+            try
             {
-                ContractId = SelectedContract!.Id,
-                FullName = FullName,
-                BirthDate = BirthDate,
-                RelationshipType = RelationshipType
-            };
+                var member = new FamilyMember
+                {
+                    Id = _editId ?? Guid.Empty,
+                    ContractId = SelectedContract!.Id,
+                    FullName = FullName,
+                    BirthDate = BirthDate,
+                    RelationshipType = RelationshipType
+                };
 
-            await _familyMemberService.CreateAsync(member);
-            CloseAction?.Invoke(true);
+                if (IsEditMode)
+                    await _familyMemberService.UpdateAsync(member);
+                else
+                    await _familyMemberService.CreateAsync(member);
+
+                CloseAction?.Invoke(true);
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]

@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.Models
 {
-    public class UtilityDebt
+    public class UtilityDebt : IHasCreatedAt
     {
         [Key] 
         public Guid Id { get; set; } = Guid.NewGuid(); 
@@ -34,6 +35,8 @@ namespace OrphanHousingService.Models
 
         [Column(TypeName = "date")]
         public DateTime? PaidDate { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         [NotMapped]
         public string DisplayStatus =>

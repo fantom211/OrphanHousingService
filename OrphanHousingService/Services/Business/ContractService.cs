@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using OrphanHousingService.Models;
 using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Repository;
@@ -6,14 +7,21 @@ using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OrphanHousingService.Services.Business
 {
     public class ContractService : CrudService<Contract>
     {
-        public ContractService(OrphanHousingDbContext context) : base(context) { }
+        private readonly ContractHistoryService _historyService;
+
+        public ContractService(
+            OrphanHousingDbContext context,
+            IValidator<Contract> validator,
+            ContractHistoryService historyService) : base(context, validator)
+        {
+            _historyService = historyService;
+        }
 
         public async Task<List<Contract>> GetAllAsync()
         {
@@ -34,21 +42,76 @@ namespace OrphanHousingService.Services.Business
             return contracts;
         }
 
-        //public async Task CreateAsync(Contract contract)
-        //{
-        //    contract.Id = Guid.NewGuid();
-        //    contract.Status = ContractStatus.Active;
-        //    await AddAsync(contract);
-        //}
+        public async Task<Contract?> GetActiveContractForPersonAsync(Guid personId)
+        {
+            return await _context.Contracts
+                .Include(c => c.Person)
+                .FirstOrDefaultAsync(c =>
+                    c.PersonId == personId &&
+                    c.Status == ContractStatus.Active);
+        }
 
         public async Task CreateAsync(Contract contract)
         {
             contract.Id = Guid.NewGuid();
             contract.Status = ContractStatus.Active;
+
             if (string.IsNullOrWhiteSpace(contract.ContractNumber))
                 contract.ContractNumber = GenerateNumber();
 
             await AddAsync(contract);
+
+            await _historyService.RecordAsync(
+                contract.Id,
+                "Создание",
+                newStatus: contract.Status,
+                comment: $"Договор №{contract.ContractNumber}");
+        }
+
+        public async Task UpdateAsync(Contract contract)
+        {
+            var existing = await GetByIdAsync(contract.Id);
+            if (existing == null)
+                throw new Exception("Договор не найден");
+
+            var oldStatus = existing.Status;
+
+            existing.ContractNumber = contract.ContractNumber;
+            existing.ContractDate = contract.ContractDate;
+            existing.StartDate = contract.StartDate;
+            existing.EndDate = contract.EndDate;
+            existing.ContractType = contract.ContractType;
+            existing.Status = contract.Status;
+
+            await ValidateAsync(existing);
+            await SaveChangesAsync();
+
+            if (oldStatus != existing.Status)
+            {
+                await _historyService.RecordAsync(
+                    existing.Id,
+                    "Изменение статуса",
+                    oldStatus,
+                    existing.Status);
+            }
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            if (await _context.UtilityDebts.AnyAsync(d => d.ContractId == id))
+                throw new Exception("Невозможно удалить: у договора есть долги");
+
+            if (await _context.FamilyMembers.AnyAsync(f => f.ContractId == id))
+                throw new Exception("Невозможно удалить: у договора есть члены семьи");
+
+            if (await _context.Applications.AnyAsync(a => a.ContractId == id))
+                throw new Exception("Невозможно удалить: у договора есть заявления");
+
+            var contract = await GetByIdAsync(id);
+            if (contract == null)
+                throw new Exception("Договор не найден");
+
+            await base.RemoveAsync(contract);
         }
 
         public async Task CloseAsync(Guid id, string reason)
@@ -57,12 +120,20 @@ namespace OrphanHousingService.Services.Business
             if (contract == null)
                 throw new Exception("Договор не найден");
 
+            var oldStatus = contract.Status;
             contract.Status = ContractStatus.Expired;
 
             await SaveChangesAsync();
+
+            await _historyService.RecordAsync(
+                id,
+                "Закрытие",
+                oldStatus,
+                contract.Status,
+                basis: NullableStringHelper.Normalize(reason));
         }
 
-        public async Task<Contract>CreateNewContractFromOld(Guid oldContractId)
+        public async Task<Contract> CreateNewContractFromOld(Guid oldContractId)
         {
             var old = await GetByIdAsync(oldContractId);
             if (old == null)
@@ -83,22 +154,32 @@ namespace OrphanHousingService.Services.Business
                 PreviousContractId = oldContractId
             };
 
-
             await CreateAsync(newContract);
+
+            await _historyService.RecordAsync(
+                oldContractId,
+                "Продление (закрытие старого)",
+                ContractStatus.Active,
+                ContractStatus.Expired);
+
             return newContract;
         }
 
         public async Task ExtendAsync(Guid oldContractId)
         {
             var old = await GetByIdAsync(oldContractId);
-
             if (old == null)
                 throw new Exception("Старый договор не найден");
 
             old.EndDate = old.EndDate.AddYears(5);
             await SaveChangesAsync();
-            await CreateNewContractFromOld(oldContractId);
 
+            await _historyService.RecordAsync(
+                oldContractId,
+                "Продление",
+                comment: $"Новая дата окончания: {old.EndDate:dd.MM.yyyy}");
+
+            await CreateNewContractFromOld(oldContractId);
         }
 
         public async Task TransferToSocialRent(Guid oldContractId)
@@ -112,6 +193,12 @@ namespace OrphanHousingService.Services.Business
 
             newContract.ContractType = ContractType.SocialRent;
             await SaveChangesAsync();
+
+            await _historyService.RecordAsync(
+                newContract.Id,
+                "Перевод в соц. найм",
+                ContractStatus.Active,
+                ContractStatus.Active);
         }
 
         public async Task ShortenContractEndDate(Guid contractId)
@@ -121,22 +208,12 @@ namespace OrphanHousingService.Services.Business
                 throw new Exception("Договор не найден");
 
             oldContract.EndDate = oldContract.EndDate.AddYears(-2);
-
             await SaveChangesAsync();
 
-            //var newContract = new Contract
-            //{
-            //    PersonId = oldContract.PersonId,
-            //    ApartmentId = oldContract.ApartmentId,
-            //    ContractType = oldContract.ContractType,
-            //    ContractNumber = oldContract.ContractNumber,
-            //    ContractDate = oldContract.ContractDate,
-            //    StartDate = oldContract.StartDate,
-            //    EndDate = oldContract.EndDate.AddYears(-2),
-            //    Status = oldContract.Status
-            //};
-
-            //await CreateAsync(oldContract);
+            await _historyService.RecordAsync(
+                contractId,
+                "Сокращение срока",
+                comment: $"Новая дата окончания: {oldContract.EndDate:dd.MM.yyyy}");
         }
     }
 }

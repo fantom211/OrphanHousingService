@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OrphanHousingService.Models.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.Models
 {
-    public class Person
+    public class Person : IHasCreatedAt
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -35,6 +36,8 @@ namespace OrphanHousingService.Models
 
         [MaxLength(100)]
         public string? Status { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
 

@@ -25,6 +25,7 @@ namespace OrphanHousingService.Repository
         public DbSet<UtilityDebt> UtilityDebts => Set<UtilityDebt>();
         public DbSet<ApartmentStatusHistory> ApartmentStatusHistories => Set<ApartmentStatusHistory>();
         public DbSet<Application> Applications => Set<Application>();
+        public DbSet<ContractHistory> ContractHistories => Set<ContractHistory>();
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,6 +93,14 @@ namespace OrphanHousingService.Repository
 
             modelBuilder.Entity<UtilityDebt>()
                 .Property(x => x.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<ContractHistory>()
+                .Property(x => x.OldStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<ContractHistory>()
+                .Property(x => x.NewStatus)
                 .HasConversion<string>();
         }
 

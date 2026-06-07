@@ -7,24 +7,24 @@ using OrphanHousingService.ViewModels.CrudViewModels;
 using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class ApartmentStatusHistoriesViewModel : ObservableObject, ICrudViewModel
+    public partial class ApartmentStatusHistoriesViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly ApartmentStatusHistoryService _historyService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ListCollectionManager<ApartmentStatusHistory> _listManager;
 
-        public ObservableCollection<ApartmentStatusHistory> Histories { get; } = [];
+        public ICollectionView Histories => _listManager.View;
 
         [ObservableProperty]
         private ApartmentStatusHistory? selectedHistory;
+
+        [ObservableProperty]
+        private string? searchText;
 
         public ApartmentStatusHistoriesViewModel(
             ApartmentStatusHistoryService historyService,
@@ -32,18 +32,21 @@ namespace OrphanHousingService.ViewModels
         {
             _historyService = historyService;
             _serviceProvider = serviceProvider;
-
+            _listManager = new ListCollectionManager<ApartmentStatusHistory>(h => new[]
+            {
+                h.Apartment?.Address,
+                h.Basis,
+                h.Comment
+            });
             _ = LoadAsync();
         }
 
+        partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
+
         public async Task LoadAsync()
         {
-            Histories.Clear();
-
             var histories = await _historyService.GetAllAsync();
-
-            foreach (var history in histories)
-                Histories.Add(history);
+            _listManager.SetItems(histories);
         }
 
         [RelayCommand]
@@ -52,22 +55,21 @@ namespace OrphanHousingService.ViewModels
             var window = _serviceProvider.GetRequiredService<AddApartmentStatusHistoryView>();
 
             if (window.ShowDialog() == true)
-            {
-                Histories.Clear();
                 await LoadAsync();
-            }
         }
 
         [RelayCommand]
         private void Edit()
         {
-
+            ValidationDialogHelper.ShowError(
+                new InvalidOperationException("Записи истории нельзя редактировать"));
         }
 
         [RelayCommand]
         private void Delete()
         {
-
+            ValidationDialogHelper.ShowError(
+                new InvalidOperationException("Записи истории нельзя удалять"));
         }
 
         [RelayCommand]
@@ -78,7 +80,6 @@ namespace OrphanHousingService.ViewModels
 
             var window = _serviceProvider.GetRequiredService<ApartmentStatusHistoryDetailsView>();
             DetailWindowHelper.Show(window, new ApartmentStatusHistoryDetailsViewModel(SelectedHistory));
-
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

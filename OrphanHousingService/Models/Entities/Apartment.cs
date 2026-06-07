@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.Models
 {
-    public class Apartment
+    public class Apartment : IHasCreatedAt
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -36,6 +37,8 @@ namespace OrphanHousingService.Models
 
         [Column(TypeName = "date")]
         public DateTime? InclussionOrderDate { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
 

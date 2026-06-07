@@ -5,10 +5,9 @@ using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
+using OrphanHousingService.ViewModels.Helpers;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
 {
@@ -17,8 +16,12 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         private readonly UtilityDebtService _utilityDebtService;
         private readonly ContractService _contractService;
         private Guid? _prefilledContractId;
+        private Guid? _editId;
 
         public ObservableCollection<Contract> Contracts { get; } = [];
+
+        [ObservableProperty]
+        private string windowTitle = "Добавить долг";
 
         [ObservableProperty]
         private Contract? selectedContract;
@@ -26,7 +29,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [ObservableProperty]
         private bool isContractLocked;
 
-        public bool IsContractEditable => !IsContractLocked;
+        public bool IsContractEditable => !IsContractLocked && !IsEditMode;
 
         [ObservableProperty]
         private decimal amount;
@@ -49,6 +52,9 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [ObservableProperty]
         private DateTime? paidDate;
 
+        public bool IsPaidDateEnabled => Status == UtilityDebtStatus.Paid;
+        public bool IsEditMode => _editId.HasValue;
+
         public IReadOnlyList<EnumItem<UtilityDebtStatus>> Statuses { get; } =
             EnumHelper.GetItems<UtilityDebtStatus>();
 
@@ -63,6 +69,19 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             _ = LoadAsync();
         }
 
+        partial void OnStatusChanged(UtilityDebtStatus value)
+        {
+            if (value != UtilityDebtStatus.Paid)
+                PaidDate = null;
+
+            OnPropertyChanged(nameof(IsPaidDateEnabled));
+        }
+
+        partial void OnIsContractLockedChanged(bool value)
+        {
+            OnPropertyChanged(nameof(IsContractEditable));
+        }
+
         public void InitializeForContract(Guid contractId)
         {
             _prefilledContractId = contractId;
@@ -71,9 +90,22 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             _ = ApplyPrefilledContractAsync();
         }
 
-        partial void OnIsContractLockedChanged(bool value)
+        public void InitializeForEdit(UtilityDebt debt)
         {
+            _editId = debt.Id;
+            WindowTitle = "Редактировать долг";
+            Amount = debt.Amount;
+            DebtDate = debt.DebtDate;
+            PeriodStart = debt.PeriodStart;
+            PeriodEnd = debt.PeriodEnd;
+            Reason = debt.Reason;
+            Status = debt.Status;
+            PaidDate = debt.PaidDate;
+            _prefilledContractId = debt.ContractId;
+            IsContractLocked = true;
             OnPropertyChanged(nameof(IsContractEditable));
+            OnPropertyChanged(nameof(IsPaidDateEnabled));
+            _ = ApplyPrefilledContractAsync();
         }
 
         private async Task ApplyPrefilledContractAsync()
@@ -102,20 +134,32 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [RelayCommand]
         private async Task Save()
         {
-            var debt = new UtilityDebt
+            try
             {
-                ContractId = SelectedContract!.Id,
-                Amount = Amount,
-                DebtDate = DebtDate,
-                PeriodStart = PeriodStart,
-                PeriodEnd = PeriodEnd,
-                Reason = Reason,
-                Status = Status,
-                PaidDate = Status == UtilityDebtStatus.Paid ? PaidDate : null
-            };
+                var debt = new UtilityDebt
+                {
+                    Id = _editId ?? Guid.Empty,
+                    ContractId = SelectedContract!.Id,
+                    Amount = Amount,
+                    DebtDate = DebtDate,
+                    PeriodStart = PeriodStart,
+                    PeriodEnd = PeriodEnd,
+                    Reason = Reason,
+                    Status = Status,
+                    PaidDate = Status == UtilityDebtStatus.Paid ? PaidDate : null
+                };
 
-            await _utilityDebtService.CreateAsync(debt);
-            CloseAction?.Invoke(true);
+                if (IsEditMode)
+                    await _utilityDebtService.UpdateAsync(debt);
+                else
+                    await _utilityDebtService.CreateAsync(debt);
+
+                CloseAction?.Invoke(true);
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]

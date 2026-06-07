@@ -3,25 +3,31 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
+using OrphanHousingService.ViewModels.CrudViewModels;
 using OrphanHousingService.ViewModels.Details;
 using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
 using OrphanHousingService.Views.Details;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class PeopleViewModel : ObservableObject, ICrudViewModel, ISelectableViewModel
+    public partial class PeopleViewModel : ObservableObject, ISearchableListViewModel, ISelectableViewModel
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly PersonService _personService;
+        private readonly ListCollectionManager<Person> _listManager;
         private Guid? _pendingSelectionId;
 
-        public ObservableCollection<Person> People { get; } = [];
+        public ICollectionView People => _listManager.View;
 
         [ObservableProperty]
         private Person? selectedPerson;
+
+        [ObservableProperty]
+        private string? searchText;
 
         public PeopleViewModel(
              PersonService personService,
@@ -29,18 +35,21 @@ namespace OrphanHousingService.ViewModels
         {
             _personService = personService;
             _serviceProvider = serviceProvider;
-
+            _listManager = new ListCollectionManager<Person>(p => new[]
+            {
+                p.FullName,
+                p.PassportData,
+                p.Phone
+            });
             _ = LoadAsync();
         }
 
+        partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
+
         public async Task LoadAsync()
         {
-            People.Clear();
-
             var people = await _personService.GetAllAsync();
-
-            foreach (var person in people)
-                People.Add(person);
+            _listManager.SetItems(people);
 
             if (_pendingSelectionId.HasValue)
             {
@@ -51,7 +60,7 @@ namespace OrphanHousingService.ViewModels
 
         public void SelectById(Guid id)
         {
-            SelectedPerson = People.FirstOrDefault(p => p.Id == id);
+            SelectedPerson = People.Cast<Person>().FirstOrDefault(p => p.Id == id);
 
             if (SelectedPerson == null)
                 _pendingSelectionId = id;
@@ -67,13 +76,38 @@ namespace OrphanHousingService.ViewModels
         }
 
         [RelayCommand]
-        private void Edit()
+        private async void Edit()
         {
+            if (SelectedPerson == null)
+                return;
+
+            var vm = _serviceProvider.GetRequiredService<AddPersonViewModel>();
+            vm.InitializeForEdit(SelectedPerson);
+
+            var window = new AddPersonView(vm);
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
         }
 
         [RelayCommand]
-        private void Delete()
+        private async void Delete()
         {
+            if (SelectedPerson == null)
+                return;
+
+            if (!CrudDialogHelper.ConfirmDelete(SelectedPerson.FullName))
+                return;
+
+            try
+            {
+                await _personService.DeleteAsync(SelectedPerson.Id);
+                await LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]
@@ -84,6 +118,42 @@ namespace OrphanHousingService.ViewModels
 
             var window = _serviceProvider.GetRequiredService<PersonDetailsView>();
             DetailWindowHelper.Show(window, new PersonDetailsViewModel(SelectedPerson, _personService));
+        }
+
+        [RelayCommand]
+        private async void AddContract()
+        {
+            if (SelectedPerson == null)
+                return;
+
+            var vm = _serviceProvider.GetRequiredService<AddContractViewModel>();
+            vm.InitializeForPerson(SelectedPerson.Id);
+
+            var window = new AddContractView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
+        }
+
+        [RelayCommand]
+        private async void AddFamilyMember()
+        {
+            if (SelectedPerson == null)
+                return;
+
+            var vm = _serviceProvider.GetRequiredService<AddFamilyMemberViewModel>();
+            vm.InitializeForPerson(SelectedPerson.Id);
+
+            var window = new AddFamilyMemberView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

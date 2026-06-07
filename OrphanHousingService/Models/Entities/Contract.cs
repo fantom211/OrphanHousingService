@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.Models
 {
-    public class Contract
+    public class Contract : IHasCreatedAt
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -51,6 +52,10 @@ namespace OrphanHousingService.Models
         public ICollection<FamilyMember> FamilyMembers { get; set; } = new List<FamilyMember>();
         public ICollection<UtilityDebt> UtilityDebts { get; set; } = new List<UtilityDebt>(); 
         public ICollection<Application> Applications { get; set; } = new List<Application>();
+
+        public DateTime CreatedAt { get; set; }
+
+        public ICollection<ContractHistory> History { get; set; } = new List<ContractHistory>();
 
         [NotMapped]
         public string DisplayContractType =>

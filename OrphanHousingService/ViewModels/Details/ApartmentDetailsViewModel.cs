@@ -1,19 +1,39 @@
-﻿using OrphanHousingService.Models;
-using System;
-using System.Collections.Generic;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using OrphanHousingService.Models;
+using OrphanHousingService.Services.Business;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels.Details
 {
-    public class ApartmentDetailsViewModel
+    public partial class ApartmentDetailsViewModel : ObservableObject
     {
-        public Apartment Apartment { get; }
+        private readonly ApartmentStatusHistoryService _historyService;
 
-        public ApartmentDetailsViewModel(Apartment apartment)
+        [ObservableProperty]
+        private Apartment apartment = null!;
+
+        public ObservableCollection<ApartmentStatusHistory> History { get; } = [];
+
+        public ApartmentDetailsViewModel(
+            Apartment apartment,
+            ApartmentStatusHistoryService historyService)
         {
+            _historyService = historyService;
             Apartment = apartment;
+            _ = LoadHistoryAsync();
+        }
+
+        private async Task LoadHistoryAsync()
+        {
+            var items = await _historyService.GetAllAsync();
+            var filtered = items
+                .Where(h => h.ApartmentId == Apartment.Id)
+                .OrderByDescending(h => h.ChangeDate);
+
+            History.Clear();
+            foreach (var item in filtered)
+                History.Add(item);
         }
     }
 }

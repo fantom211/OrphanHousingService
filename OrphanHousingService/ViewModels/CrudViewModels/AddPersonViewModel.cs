@@ -2,17 +2,19 @@
 using CommunityToolkit.Mvvm.Input;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
+using OrphanHousingService.Services.Helpers;
+using OrphanHousingService.ViewModels.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
 {
     public partial class AddPersonViewModel : ObservableObject
     {
         private readonly PersonService _personService;
+        private Guid? _editId;
+
+        [ObservableProperty]
+        private string windowTitle = "Добавить человека";
 
         [ObservableProperty]
         private string surName = string.Empty;
@@ -35,6 +37,8 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [ObservableProperty]
         private string? status;
 
+        public bool IsEditMode => _editId.HasValue;
+
         public Action<bool>? CloseAction { get; set; }
 
         public AddPersonViewModel(PersonService personService)
@@ -42,23 +46,54 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             _personService = personService;
         }
 
+        public void InitializeForEdit(Person person)
+        {
+            _editId = person.Id;
+            WindowTitle = "Редактировать человека";
+            SurName = person.SurName;
+            FirstName = person.FirstName;
+            LastName = person.LastName;
+            BirthDate = person.BirthDate;
+            PassportData = person.PassportData;
+            Phone = person.Phone;
+            Status = person.Status;
+        }
+
         [RelayCommand]
         private async Task Save()
         {
-            var person = new Person
+            if (!PassportFormatHelper.IsValid(PassportData))
             {
-                SurName = SurName,
-                FirstName = FirstName,
-                LastName = LastName,
-                BirthDate = BirthDate,
-                PassportData = PassportData,
-                Phone = Phone,
-                Status = Status
-            };
+                ValidationDialogHelper.ShowError(
+                    new Exception(PassportFormatHelper.FormatDescription));
+                return;
+            }
 
-            await _personService.CreateAsync(person);
+            try
+            {
+                var person = new Person
+                {
+                    Id = _editId ?? Guid.Empty,
+                    SurName = SurName,
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    BirthDate = BirthDate,
+                    PassportData = PassportData,
+                    Phone = Phone,
+                    Status = Status
+                };
 
-            CloseAction?.Invoke(true);
+                if (IsEditMode)
+                    await _personService.UpdateAsync(person);
+                else
+                    await _personService.CreateAsync(person);
+
+                CloseAction?.Invoke(true);
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]

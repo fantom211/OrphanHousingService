@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.Models
 {
-    public class Application
+    public class Application : IHasCreatedAt
     {
         [Key] 
         public Guid Id { get; set; } = Guid.NewGuid(); 
@@ -29,6 +30,8 @@ namespace OrphanHousingService.Models
         [MaxLength(100)]
         public ApplicationStatus Status { get; set; }
         public string? Comment { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         [NotMapped]
         public string DisplayApplicationType =>

@@ -1,32 +1,44 @@
 <Window x:Class="OrphanHousingService.Views.CrudViews.AddFamilyMemberView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        Title="Добавить члена семьи"
-        Width="500"
-        Height="320"
+        Title="{Binding WindowTitle}"
+        Width="520"
+        Height="400"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner">
     <Grid Margin="15">
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Договор" Grid.Row="0"/>
-        <ComboBox Grid.Row="0"
-                  Grid.Column="1"
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,8"
+                   Text="Создание по договору: выберите договор, гражданин отображается для ориентира."
+                   TextWrapping="Wrap" Foreground="#6B7280"
+                   Visibility="{Binding ShowCitizenInfo, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,8"
+                   Text="Создание по гражданину: активный договор подставляется автоматически."
+                   TextWrapping="Wrap" Foreground="#6B7280"
+                   Visibility="{Binding ShowPersonSourceInfo, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Гражданин:"
+                   Visibility="{Binding ShowCitizenName, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" FontWeight="SemiBold"
+                   Text="{Binding CitizenDisplayName}"
+                   Visibility="{Binding ShowCitizenName, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Договор:"/>
+        <ComboBox Grid.Row="2" Grid.Column="1"
                   ItemsSource="{Binding Contracts}"
                   SelectedItem="{Binding SelectedContract}"
                   IsEnabled="{Binding IsContractEditable}"
@@ -34,36 +46,24 @@
                   IsTextSearchEnabled="True"
                   DisplayMemberPath="ContractNumber"/>
 
-        <TextBlock Text="ФИО" Grid.Row="1"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FullName}"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="Член семьи (ФИО):"/>
+        <TextBox Grid.Row="3" Grid.Column="1"
+                 Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"/>
 
-        <TextBlock Text="Дата рождения" Grid.Row="2"/>
-        <DatePicker Grid.Row="2" Grid.Column="1" SelectedDate="{Binding BirthDate}"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Text="Дата рождения:"/>
+        <DatePicker Grid.Row="4" Grid.Column="1" SelectedDate="{Binding BirthDate}"/>
 
-        <TextBlock Text="Родство" Grid.Row="3"/>
-        <ComboBox Grid.Row="3"
-                  Grid.Column="1"
+        <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Text="Родство:"/>
+        <ComboBox Grid.Row="5" Grid.Column="1"
                   ItemsSource="{Binding RelationshipTypes}"
                   SelectedValue="{Binding RelationshipType}"
                   SelectedValuePath="Value"
                   DisplayMemberPath="Display"/>
 
-        <StackPanel Grid.Row="4"
-                    Grid.ColumnSpan="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,15,0,0">
-
-            <Button Content="Сохранить"
-                    Width="120"
-                    Margin="0,0,10,0"
-                    Command="{Binding SaveCommand}" />
-
-            <Button Content="Отмена"
-                    Width="120"
-                    Command="{Binding CancelCommand}" />
-
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="Сохранить" Width="120" Margin="0,0,10,0" Command="{Binding SaveCommand}" />
+            <Button Content="Отмена" Width="120" Command="{Binding CancelCommand}" />
         </StackPanel>
-
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.Models
 {
-    public class CommissionDecision
+    public class CommissionDecision : IHasCreatedAt
     {
         [Key] 
         public Guid Id { get; set; } = Guid.NewGuid(); 
@@ -29,6 +30,8 @@ namespace OrphanHousingService.Models
         public DecisionResult Result { get; set; }
         public string? Reason { get; set; }
         public string? Comment { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         [NotMapped]
         public string DisplayDecisionType =>

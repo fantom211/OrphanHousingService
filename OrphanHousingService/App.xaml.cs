@@ -118,6 +118,7 @@ namespace OrphanHousingService
             services.AddTransient<ApplicationService>();
             services.AddTransient<CommissionDecisionService>();
             services.AddTransient<ContractWorkFlowService>();
+            services.AddTransient<ContractHistoryService>();
             services.AddTransient(typeof(CrudService<>));
             services.AddScoped<IValidator<Contract>, ContractValidator>();
             services.AddScoped<IValidator<Apartment>, ApartmentValidator>();

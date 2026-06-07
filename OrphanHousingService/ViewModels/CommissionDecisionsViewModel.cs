@@ -3,43 +3,55 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
+using OrphanHousingService.ViewModels.CrudViewModels;
 using OrphanHousingService.ViewModels.Details;
 using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
 using OrphanHousingService.Views.Details;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class CommissionDecisionsViewModel : ObservableObject, ICrudViewModel
+    public partial class CommissionDecisionsViewModel : ObservableObject, ISearchableListViewModel
     {
-        private readonly CommissionDecisionService _commissionDecisionService;
+        private readonly CommissionDecisionService _decisionService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ListCollectionManager<CommissionDecision> _listManager;
 
-        public ObservableCollection<CommissionDecision> CommissionDecisions { get; } = [];
+        public ICollectionView CommissionDecisions => _listManager.View;
 
         [ObservableProperty]
         private CommissionDecision? selectedCommissionDecision;
 
+        [ObservableProperty]
+        private string? searchText;
+
         public CommissionDecisionsViewModel(
-            CommissionDecisionService commissionDecisionService,
+            CommissionDecisionService decisionService,
             IServiceProvider serviceProvider)
         {
-            _commissionDecisionService = commissionDecisionService;
+            _decisionService = decisionService;
             _serviceProvider = serviceProvider;
-
+            _listManager = new ListCollectionManager<CommissionDecision>(d => new[]
+            {
+                d.DecisionNumber,
+                d.Application?.ApplicationNumber,
+                d.Application?.Contract?.ContractNumber,
+                d.Application?.Contract?.Person?.FullName,
+                d.Reason,
+                d.Comment
+            });
             _ = LoadAsync();
         }
 
+        partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
+
         public async Task LoadAsync()
         {
-            CommissionDecisions.Clear();
-
-            var items = await _commissionDecisionService.GetAllAsync();
-
-            foreach (var item in items)
-                CommissionDecisions.Add(item);
+            var items = await _decisionService.GetAllAsync();
+            _listManager.SetItems(items);
         }
 
         [RelayCommand]
@@ -52,13 +64,38 @@ namespace OrphanHousingService.ViewModels
         }
 
         [RelayCommand]
-        private void Edit()
+        private async void Edit()
         {
+            if (SelectedCommissionDecision == null)
+                return;
+
+            var vm = _serviceProvider.GetRequiredService<AddCommissionDecisionViewModel>();
+            vm.InitializeForEdit(SelectedCommissionDecision);
+
+            var window = new AddCommissionDecisionView(vm);
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
         }
 
         [RelayCommand]
-        private void Delete()
+        private async void Delete()
         {
+            if (SelectedCommissionDecision == null)
+                return;
+
+            if (!CrudDialogHelper.ConfirmDelete(SelectedCommissionDecision.DecisionNumber))
+                return;
+
+            try
+            {
+                await _decisionService.DeleteAsync(SelectedCommissionDecision.Id);
+                await LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                ValidationDialogHelper.ShowError(ex);
+            }
         }
 
         [RelayCommand]

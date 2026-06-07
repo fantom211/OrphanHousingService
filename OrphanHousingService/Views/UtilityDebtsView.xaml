@@ -1,14 +1,21 @@
 <UserControl x:Class="OrphanHousingService.Views.UtilityDebtsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
+        xmlns:controls="clr-namespace:OrphanHousingService.Views.Controls"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch">
     <Grid>
-        <DataGrid Style="{StaticResource ModernDataGrid}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SearchPanel Grid.Row="0"/>
+
+        <DataGrid Grid.Row="1"
+                  Style="{StaticResource ModernDataGrid}"
                   AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
                   ItemsSource="{Binding UtilityDebts}"
                   SelectedItem="{Binding SelectedUtilityDebt}"
                   IsReadOnly="True">
@@ -19,26 +26,18 @@
             </DataGrid.InputBindings>
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Договор"
-                                    Binding="{Binding Contract.ContractNumber}" />
-                <DataGridTextColumn Header="Гражданин"
-                                    Binding="{Binding Contract.Person.FullName}" />
-                <DataGridTextColumn Header="Сумма"
-                                    Binding="{Binding Amount}" />
-                <DataGridTextColumn Header="Дата задолженности"
-                                    Binding="{Binding DebtDate, StringFormat=dd.MM.yyyy}" />
-                <DataGridTextColumn Header="Период с"
-                                    Binding="{Binding PeriodStart, StringFormat=dd.MM.yyyy}" />
-                <DataGridTextColumn Header="Период по"
-                                    Binding="{Binding PeriodEnd, StringFormat=dd.MM.yyyy}" />
-                <DataGridTextColumn Header="Статус"
-                                    Binding="{Binding DisplayStatus}" />
-                <DataGridTextColumn Header="Дата оплаты"
-                                    Binding="{Binding PaidDate, StringFormat=dd.MM.yyyy}" />
-                <DataGridTextColumn Header="Причина"
-                                    Binding="{Binding Reason}" />
+                <DataGridTextColumn Header="Договор" Binding="{Binding Contract.ContractNumber}" />
+                <DataGridTextColumn Header="Гражданин" Binding="{Binding Contract.Person.FullName}" />
+                <DataGridTextColumn Header="Квартира" Binding="{Binding Contract.Apartment.Address}" />
+                <DataGridTextColumn Header="Сумма" Binding="{Binding Amount}" />
+                <DataGridTextColumn Header="Дата задолженности" Binding="{Binding DebtDate, StringFormat=dd.MM.yyyy}" />
+                <DataGridTextColumn Header="Период с" Binding="{Binding PeriodStart, StringFormat=dd.MM.yyyy}" />
+                <DataGridTextColumn Header="Период по" Binding="{Binding PeriodEnd, StringFormat=dd.MM.yyyy}" />
+                <DataGridTextColumn Header="Статус" Binding="{Binding DisplayStatus}" />
+                <DataGridTextColumn Header="Дата оплаты" Binding="{Binding PaidDate, StringFormat=dd.MM.yyyy}" />
+                <DataGridTextColumn Header="Причина" Binding="{Binding Reason}" />
+                <DataGridTextColumn Header="Добавлен" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" />
             </DataGrid.Columns>
-
         </DataGrid>
     </Grid>
 </UserControl>

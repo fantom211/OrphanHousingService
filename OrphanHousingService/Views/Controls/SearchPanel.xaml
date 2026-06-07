@@ -1,0 +1,35 @@
+<UserControl x:Class="OrphanHousingService.Views.Controls.SearchPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+>
+    <DockPanel Margin="0,0,0,8">
+        <TextBlock Text="Поиск:"
+                   DockPanel.Dock="Left"
+                   VerticalAlignment="Center"
+                   Margin="0,0,8,0"/>
+        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 Width="360"
+                 HorizontalAlignment="Left"
+                 Padding="6,4"
+                 ToolTip="Поиск по номеру договора, квартире, человеку">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <VisualBrush AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <TextBlock Foreground="Gray" Margin="6,0"
+                                                       Text="Договор, квартира, человек..."/>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+    </DockPanel>
+</UserControl>
