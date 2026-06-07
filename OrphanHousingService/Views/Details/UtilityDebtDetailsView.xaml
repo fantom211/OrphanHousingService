@@ -1,0 +1,60 @@
+<Window x:Class="OrphanHousingService.Views.Details.UtilityDebtDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Долг за коммунальные услуги"
+        Height="450"
+        Width="700"
+        ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Договор:" Grid.Row="0" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.Contract.ContractNumber}" Grid.Row="0" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Гражданин:" Grid.Row="1" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.Contract.Person.FullName}" Grid.Row="1" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Сумма:" Grid.Row="2" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.Amount}" Grid.Row="2" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата задолженности:" Grid.Row="3" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.DebtDate, StringFormat=dd.MM.yyyy}" Grid.Row="3" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Период с:" Grid.Row="4" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.PeriodStart, StringFormat=dd.MM.yyyy}" Grid.Row="4" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Период по:" Grid.Row="5" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.PeriodEnd, StringFormat=dd.MM.yyyy}" Grid.Row="5" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Причина:" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.Reason}" Grid.Row="6" Grid.Column="1" Margin="0,5" TextWrapping="Wrap"/>
+
+        <TextBlock Text="Статус:" Grid.Row="7" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.DisplayStatus}" Grid.Row="7" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата оплаты:" Grid.Row="8" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.PaidDate, StringFormat=dd.MM.yyyy}" Grid.Row="8" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Идентификатор:" Grid.Row="9" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding UtilityDebt.Id}" Grid.Row="9" Grid.Column="1" Margin="0,5"/>
+    </Grid>
+</Window>

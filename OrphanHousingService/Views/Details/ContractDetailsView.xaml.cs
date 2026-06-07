@@ -1,10 +1,10 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace OrphanHousingService.Views.Details
 {
-    public partial class PersonDetailsView : Window
+    public partial class ContractDetailsView : Window
     {
-        public PersonDetailsView()
+        public ContractDetailsView()
         {
             InitializeComponent();
         }

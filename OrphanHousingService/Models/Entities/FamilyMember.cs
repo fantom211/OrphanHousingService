@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -27,5 +28,9 @@ namespace OrphanHousingService.Models
         public DateTime BirthDate { get; set; }
 
         public RelationshipType RelationshipType { get; set; }
+
+        [NotMapped]
+        public string DisplayRelationshipType =>
+            EnumLocalization.GetString(RelationshipType);
     }
 }

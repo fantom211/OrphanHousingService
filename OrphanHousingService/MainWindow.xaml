@@ -58,6 +58,14 @@
                         Command="{Binding OpenCommissionDecisionsCommand}"
                         Style="{StaticResource SidebarButton}"/>
 
+                <Button Content="Долги ЖКХ"
+                        Command="{Binding OpenUtilityDebtsCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
+                <Button Content="Состав семьи"
+                        Command="{Binding OpenFamilyMembersCommand}"
+                        Style="{StaticResource SidebarButton}"/>
+
             </StackPanel>
         </Border>
 

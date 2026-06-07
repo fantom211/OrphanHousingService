@@ -3,21 +3,21 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
+using OrphanHousingService.ViewModels.Details;
+using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
-using System;
-using System.Collections.Generic;
+using OrphanHousingService.Views.Details;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class PeopleViewModel : ObservableObject, ICrudViewModel
+    public partial class PeopleViewModel : ObservableObject, ICrudViewModel, ISelectableViewModel
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly PersonService _personService;
+        private Guid? _pendingSelectionId;
+
         public ObservableCollection<Person> People { get; } = [];
 
         [ObservableProperty]
@@ -41,6 +41,20 @@ namespace OrphanHousingService.ViewModels
 
             foreach (var person in people)
                 People.Add(person);
+
+            if (_pendingSelectionId.HasValue)
+            {
+                SelectById(_pendingSelectionId.Value);
+                _pendingSelectionId = null;
+            }
+        }
+
+        public void SelectById(Guid id)
+        {
+            SelectedPerson = People.FirstOrDefault(p => p.Id == id);
+
+            if (SelectedPerson == null)
+                _pendingSelectionId = id;
         }
 
         [RelayCommand]
@@ -49,22 +63,27 @@ namespace OrphanHousingService.ViewModels
             var window = _serviceProvider.GetRequiredService<AddPersonView>();
 
             if (window.ShowDialog() == true)
-            {
-                People.Clear();
                 await LoadAsync();
-            }
         }
 
         [RelayCommand]
         private void Edit()
         {
-
         }
 
         [RelayCommand]
         private void Delete()
         {
+        }
 
+        [RelayCommand]
+        private void OpenDetails()
+        {
+            if (SelectedPerson == null)
+                return;
+
+            var window = _serviceProvider.GetRequiredService<PersonDetailsView>();
+            DetailWindowHelper.Show(window, new PersonDetailsViewModel(SelectedPerson, _personService));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

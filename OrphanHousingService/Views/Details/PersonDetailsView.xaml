@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OrphanHousingService.Views.Details"
         mc:Ignorable="d"
-        Title="PersonDetailsView" Height="450" Width="800">
+        Title="Гражданин" Height="450" Width="800">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -44,7 +45,10 @@
         <TextBlock Text="Статус:" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
         <TextBlock Text="{Binding Person.Status}" Grid.Row="6" Grid.Column="1" Margin="0,5"/>
 
-        <GroupBox Grid.Row="7" Header="Состав семьи" Margin="0,20,0,0">
+        <TextBlock Text="Идентификатор:" Grid.Row="7" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Person.Id}" Grid.Row="7" Grid.Column="1" Margin="0,5"/>
+
+        <GroupBox Grid.Row="8" Header="Состав семьи" Margin="0,20,0,0" Grid.ColumnSpan="2">
             <DataGrid ItemsSource="{Binding FamilyMembers}"
               AutoGenerateColumns="False"
               IsReadOnly="True">
@@ -55,7 +59,7 @@
                                 Binding="{Binding FullName}" />
 
                     <DataGridTextColumn Header="Родство"
-                                Binding="{Binding Relation}" />
+                                Binding="{Binding DisplayRelationshipType}" />
 
                     <DataGridTextColumn Header="Дата рождения"
                                 Binding="{Binding BirthDate, StringFormat=dd.MM.yyyy}" />

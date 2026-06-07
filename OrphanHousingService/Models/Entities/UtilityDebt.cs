@@ -1,4 +1,5 @@
 ﻿using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Services.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,12 +25,18 @@ namespace OrphanHousingService.Models
         [Column(TypeName = "date")]
         public DateTime DebtDate { get; set; }
 
+        [Column(TypeName = "date")]
         public DateTime PeriodStart { get; set; }
+        [Column(TypeName = "date")]
         public DateTime PeriodEnd { get; set; }
         public string? Reason { get; set; }
         public UtilityDebtStatus Status { get; set; } = UtilityDebtStatus.Unpaid;
 
         [Column(TypeName = "date")]
         public DateTime? PaidDate { get; set; }
+
+        [NotMapped]
+        public string DisplayStatus =>
+            EnumLocalization.GetString(Status);
     }
 }

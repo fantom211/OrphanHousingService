@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels.Details
 {
-    public partial class PersonDetailsViewModel
+    public partial class PersonDetailsViewModel : ObservableObject
     {
         private readonly PersonService _personService;
         public Person Person { get; }

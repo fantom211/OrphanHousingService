@@ -20,6 +20,7 @@ namespace OrphanHousingService.Services.Business
             var contracts = await _context.Contracts
                 .Include(x => x.Person)
                 .Include(x => x.Apartment)
+                .Include(x => x.PreviousContract)
                 .Include(x => x.UtilityDebts)
                 .ToListAsync();
 

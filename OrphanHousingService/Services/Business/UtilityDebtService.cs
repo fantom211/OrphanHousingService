@@ -1,4 +1,5 @@
-﻿using OrphanHousingService.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using OrphanHousingService.Models;
 using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Repository;
 using OrphanHousingService.Services.Helpers;
@@ -13,6 +14,16 @@ namespace OrphanHousingService.Services.Business
     public class UtilityDebtService : CrudService<UtilityDebt>
     {
         public UtilityDebtService(OrphanHousingDbContext context) : base(context) { }
+
+        public async Task<List<UtilityDebt>> GetAllAsync()
+        {
+            return await _context.UtilityDebts
+                .Include(x => x.Contract)
+                    .ThenInclude(c => c.Person)
+                .Include(x => x.Contract)
+                    .ThenInclude(c => c.Apartment)
+                .ToListAsync();
+        }
 
         public async Task CreateAsync(UtilityDebt debt)
         {

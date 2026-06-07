@@ -1,84 +1,76 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.ViewModels.CrudViewModels;
+using OrphanHousingService.ViewModels.Details;
 using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
-using System;
-using System.Collections.Generic;
+using OrphanHousingService.Views.Details;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class ApartmentStatusHistoriesViewModel : ObservableObject, ICrudViewModel
+    public partial class UtilityDebtsViewModel : ObservableObject, ICrudViewModel
     {
-        private readonly ApartmentStatusHistoryService _historyService;
+        private readonly UtilityDebtService _utilityDebtService;
         private readonly IServiceProvider _serviceProvider;
 
-        public ObservableCollection<ApartmentStatusHistory> Histories { get; } = [];
+        public ObservableCollection<UtilityDebt> UtilityDebts { get; } = [];
 
         [ObservableProperty]
-        private ApartmentStatusHistory? selectedHistory;
+        private UtilityDebt? selectedUtilityDebt;
 
-        public ApartmentStatusHistoriesViewModel(
-            ApartmentStatusHistoryService historyService,
+        public UtilityDebtsViewModel(
+            UtilityDebtService utilityDebtService,
             IServiceProvider serviceProvider)
         {
-            _historyService = historyService;
+            _utilityDebtService = utilityDebtService;
             _serviceProvider = serviceProvider;
-
             _ = LoadAsync();
         }
 
         public async Task LoadAsync()
         {
-            Histories.Clear();
+            UtilityDebts.Clear();
 
-            var histories = await _historyService.GetAllAsync();
+            var items = await _utilityDebtService.GetAllAsync();
 
-            foreach (var history in histories)
-                Histories.Add(history);
+            foreach (var item in items)
+                UtilityDebts.Add(item);
         }
 
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddApartmentStatusHistoryView>();
+            var window = _serviceProvider.GetRequiredService<AddUtilityDebtView>();
+
+            window.Owner = System.Windows.Application.Current.MainWindow;
 
             if (window.ShowDialog() == true)
-            {
-                Histories.Clear();
                 await LoadAsync();
-            }
         }
 
         [RelayCommand]
         private void Edit()
         {
-
         }
 
         [RelayCommand]
         private void Delete()
         {
-
         }
 
         [RelayCommand]
         private void OpenDetails()
         {
-            if (SelectedHistory == null)
+            if (SelectedUtilityDebt == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<ApartmentStatusHistoryDetailsView>();
-            DetailWindowHelper.Show(window, new ApartmentStatusHistoryDetailsViewModel(SelectedHistory));
-
+            var window = _serviceProvider.GetRequiredService<UtilityDebtDetailsView>();
+            DetailWindowHelper.Show(window, new UtilityDebtDetailsViewModel(SelectedUtilityDebt));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

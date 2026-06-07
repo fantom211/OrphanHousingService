@@ -1,0 +1,64 @@
+<Window x:Class="OrphanHousingService.Views.Details.ContractDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Договор"
+        Height="500"
+        Width="800"
+        ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Тип договора:" Grid.Row="0" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.DisplayContractType}" Grid.Row="0" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Номер договора:" Grid.Row="1" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.ContractNumber}" Grid.Row="1" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата договора:" Grid.Row="2" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.ContractDate, StringFormat=dd.MM.yyyy}" Grid.Row="2" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата начала:" Grid.Row="3" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.StartDate, StringFormat=dd.MM.yyyy}" Grid.Row="3" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Дата окончания:" Grid.Row="4" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.EndDate, StringFormat=dd.MM.yyyy}" Grid.Row="4" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Статус:" Grid.Row="5" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.DisplayStatus}" Grid.Row="5" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Гражданин:" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.Person.FullName}" Grid.Row="6" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Квартира:" Grid.Row="7" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.Apartment.Address}" Grid.Row="7" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Предыдущий договор:" Grid.Row="8" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.PreviousContract.ContractNumber}" Grid.Row="8" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Сумма долга:" Grid.Row="9" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.TotalDebt}" Grid.Row="9" Grid.Column="1" Margin="0,5"/>
+
+        <TextBlock Text="Идентификатор:" Grid.Row="10" Grid.Column="0" Margin="0,5"/>
+        <TextBlock Text="{Binding Contract.Id}" Grid.Row="10" Grid.Column="1" Margin="0,5"/>
+    </Grid>
+</Window>

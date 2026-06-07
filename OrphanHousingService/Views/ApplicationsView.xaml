@@ -12,6 +12,11 @@
                   GridLinesVisibility="None"
                     HeadersVisibility="Column">
 
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick"
+                              Command="{Binding OpenDetailsCommand}" />
+            </DataGrid.InputBindings>
+
             <DataGrid.Columns>
 
                 <DataGridTextColumn Header="Номер заявки"

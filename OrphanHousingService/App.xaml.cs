@@ -40,9 +40,10 @@ namespace OrphanHousingService
             Services = services.BuildServiceProvider();
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
-            mainWindow.DataContext = Services.GetRequiredService<MainViewModel>();
+            var vm = Services.GetRequiredService<MainViewModel>();
+            mainWindow.DataContext = vm;
             mainWindow.Show();
-
+            vm.Initialize();
             base.OnStartup(e);
         }
 
@@ -69,6 +70,15 @@ namespace OrphanHousingService
             services.AddTransient<PersonDetailsView>();
             services.AddTransient<ApartmentDetailsView>();
             services.AddTransient<ContractHistoryView>();
+            services.AddTransient<ContractDetailsView>();
+            services.AddTransient<ApplicationDetailsView>();
+            services.AddTransient<CommissionDecisionDetailsView>();
+            services.AddTransient<UtilityDebtDetailsView>();
+            services.AddTransient<FamilyMemberDetailsView>();
+            services.AddTransient<UtilityDebtsView>();
+            services.AddTransient<FamilyMembersView>();
+            services.AddTransient<AddUtilityDebtView>();
+            services.AddTransient<AddFamilyMemberView>();
 
             //ViewModels
             services.AddSingleton<MainViewModel>();
@@ -88,13 +98,23 @@ namespace OrphanHousingService
             services.AddTransient<PersonDetailsViewModel>();
             services.AddTransient<ApartmentDetailsViewModel>();
             services.AddTransient<ContractHistoryViewModel>();
+            services.AddTransient<ContractDetailsViewModel>();
+            services.AddTransient<ApplicationDetailsViewModel>();
+            services.AddTransient<CommissionDecisionDetailsViewModel>();
+            services.AddTransient<UtilityDebtDetailsViewModel>();
+            services.AddTransient<FamilyMemberDetailsViewModel>();
+            services.AddTransient<UtilityDebtsViewModel>();
+            services.AddTransient<FamilyMembersViewModel>();
+            services.AddTransient<AddUtilityDebtViewModel>();
+            services.AddTransient<AddFamilyMemberViewModel>();
 
             //Сервисы
             services.AddTransient<ContractService>();
             services.AddTransient<ApartmentService>();
             services.AddTransient<ApartmentStatusHistoryService>();
             services.AddTransient<PersonService>();
-            services.AddTransient<FamilyMember>();
+            services.AddTransient<UtilityDebtService>();
+            services.AddTransient<FamilyMemberService>();
             services.AddTransient<ApplicationService>();
             services.AddTransient<CommissionDecisionService>();
             services.AddTransient<ContractWorkFlowService>();
@@ -103,7 +123,6 @@ namespace OrphanHousingService
             services.AddScoped<IValidator<Apartment>, ApartmentValidator>();
             services.AddScoped<IValidator<ApplicationModel>, ApplicationValidator>();
             services.AddScoped<IValidator<ApartmentStatusHistory>, ApartmentStatusHistoryValidator>();
-            services.AddScoped<IValidator<Apartment>, ApartmentValidator>();
             services.AddScoped<IValidator<CommissionDecision>, CommissionDecisionValidator>();
             services.AddScoped<IValidator<FamilyMember>, FamilyMemberValidator>();
             services.AddScoped<IValidator<Person>, PersonValidator>();
@@ -113,4 +132,3 @@ namespace OrphanHousingService
         }
     }
 }
-

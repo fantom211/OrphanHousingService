@@ -3,21 +3,21 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
+using OrphanHousingService.ViewModels.Details;
+using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
-using System;
-using System.Collections.Generic;
+using OrphanHousingService.Views.Details;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class ApartmentsViewModel : ObservableObject, ICrudViewModel
+    public partial class ApartmentsViewModel : ObservableObject, ICrudViewModel, ISelectableViewModel
     {
         private readonly ApartmentService _apartmentService;
         private readonly IServiceProvider _serviceProvider;
+        private Guid? _pendingSelectionId;
+
         public ObservableCollection<Apartment> Apartments { get; } = [];
 
         [ObservableProperty]
@@ -26,8 +26,8 @@ namespace OrphanHousingService.ViewModels
         public ApartmentsViewModel(ApartmentService apartmentService, IServiceProvider serviceProvider)
         {
             _apartmentService = apartmentService;
-            _ = LoadAsync();
             _serviceProvider = serviceProvider;
+            _ = LoadAsync();
         }
 
         public async Task LoadAsync()
@@ -38,6 +38,20 @@ namespace OrphanHousingService.ViewModels
 
             foreach (var apartment in apartments)
                 Apartments.Add(apartment);
+
+            if (_pendingSelectionId.HasValue)
+            {
+                SelectById(_pendingSelectionId.Value);
+                _pendingSelectionId = null;
+            }
+        }
+
+        public void SelectById(Guid id)
+        {
+            SelectedApartment = Apartments.FirstOrDefault(a => a.Id == id);
+
+            if (SelectedApartment == null)
+                _pendingSelectionId = id;
         }
 
         [RelayCommand]
@@ -46,22 +60,27 @@ namespace OrphanHousingService.ViewModels
             var window = _serviceProvider.GetRequiredService<AddApartmentView>();
 
             if (window.ShowDialog() == true)
-            {
-                Apartments.Clear();
                 await LoadAsync();
-            }
         }
 
         [RelayCommand]
         private void Edit()
         {
-
         }
 
         [RelayCommand]
         private void Delete()
         {
+        }
 
+        [RelayCommand]
+        private void OpenDetails()
+        {
+            if (SelectedApartment == null)
+                return;
+
+            var window = _serviceProvider.GetRequiredService<ApartmentDetailsView>();
+            DetailWindowHelper.Show(window, new ApartmentDetailsViewModel(SelectedApartment));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

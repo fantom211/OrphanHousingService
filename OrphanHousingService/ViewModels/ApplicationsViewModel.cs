@@ -3,14 +3,12 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
+using OrphanHousingService.ViewModels.Details;
+using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
-using System;
-using System.Collections.Generic;
+using OrphanHousingService.Views.Details;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels
 {
@@ -48,10 +46,7 @@ namespace OrphanHousingService.ViewModels
             var window = _serviceProvider.GetRequiredService<AddApplicationView>();
 
             if (window.ShowDialog() == true)
-            {
-                Applications.Clear();
                 await LoadAsync();
-            }
         }
 
         [RelayCommand]
@@ -62,6 +57,16 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private void Delete()
         {
+        }
+
+        [RelayCommand]
+        private void OpenDetails()
+        {
+            if (SelectedApplication == null)
+                return;
+
+            var window = _serviceProvider.GetRequiredService<ApplicationDetailsView>();
+            DetailWindowHelper.Show(window, new ApplicationDetailsViewModel(SelectedApplication));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

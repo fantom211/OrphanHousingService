@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OrphanHousingService.Views"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:behaviors="clr-namespace:OrphanHousingService.Behaviors"
         mc:Ignorable="d"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
@@ -13,6 +15,15 @@
             IsReadOnly="True" AutoGenerateColumns="False"
               ItemsSource="{Binding People}"
               SelectedItem="{Binding SelectedPerson}">
+
+            <i:Interaction.Behaviors>
+                <behaviors:DataGridScrollIntoViewBehavior />
+            </i:Interaction.Behaviors>
+
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick"
+                              Command="{Binding OpenDetailsCommand}" />
+            </DataGrid.InputBindings>
 
             <DataGrid.Columns>
 

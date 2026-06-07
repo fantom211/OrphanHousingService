@@ -1,84 +1,75 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.Models;
 using OrphanHousingService.Services.Business;
-using OrphanHousingService.ViewModels.CrudViewModels;
+using OrphanHousingService.ViewModels.Details;
 using OrphanHousingService.ViewModels.Helpers;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views.CrudViews;
-using System;
-using System.Collections.Generic;
+using OrphanHousingService.Views.Details;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class ApartmentStatusHistoriesViewModel : ObservableObject, ICrudViewModel
+    public partial class FamilyMembersViewModel : ObservableObject, ICrudViewModel
     {
-        private readonly ApartmentStatusHistoryService _historyService;
+        private readonly FamilyMemberService _familyMemberService;
         private readonly IServiceProvider _serviceProvider;
 
-        public ObservableCollection<ApartmentStatusHistory> Histories { get; } = [];
+        public ObservableCollection<FamilyMember> FamilyMembers { get; } = [];
 
         [ObservableProperty]
-        private ApartmentStatusHistory? selectedHistory;
+        private FamilyMember? selectedFamilyMember;
 
-        public ApartmentStatusHistoriesViewModel(
-            ApartmentStatusHistoryService historyService,
+        public FamilyMembersViewModel(
+            FamilyMemberService familyMemberService,
             IServiceProvider serviceProvider)
         {
-            _historyService = historyService;
+            _familyMemberService = familyMemberService;
             _serviceProvider = serviceProvider;
-
             _ = LoadAsync();
         }
 
         public async Task LoadAsync()
         {
-            Histories.Clear();
+            FamilyMembers.Clear();
 
-            var histories = await _historyService.GetAllAsync();
+            var items = await _familyMemberService.GetAllAsync();
 
-            foreach (var history in histories)
-                Histories.Add(history);
+            foreach (var item in items)
+                FamilyMembers.Add(item);
         }
 
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddApartmentStatusHistoryView>();
+            var window = _serviceProvider.GetRequiredService<AddFamilyMemberView>();
+
+            window.Owner = System.Windows.Application.Current.MainWindow;
 
             if (window.ShowDialog() == true)
-            {
-                Histories.Clear();
                 await LoadAsync();
-            }
         }
 
         [RelayCommand]
         private void Edit()
         {
-
         }
 
         [RelayCommand]
         private void Delete()
         {
-
         }
 
         [RelayCommand]
         private void OpenDetails()
         {
-            if (SelectedHistory == null)
+            if (SelectedFamilyMember == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<ApartmentStatusHistoryDetailsView>();
-            DetailWindowHelper.Show(window, new ApartmentStatusHistoryDetailsViewModel(SelectedHistory));
-
+            var window = _serviceProvider.GetRequiredService<FamilyMemberDetailsView>();
+            DetailWindowHelper.Show(window, new FamilyMemberDetailsViewModel(SelectedFamilyMember));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

@@ -4,10 +4,16 @@
 
     <Grid>
 
-        <DataGrid IsReadOnly="True"
+        <DataGrid Style="{StaticResource ModernDataGrid}"
+                  IsReadOnly="True"
                   AutoGenerateColumns="False"
                   ItemsSource="{Binding CommissionDecisions}"
                   SelectedItem="{Binding SelectedCommissionDecision}">
+
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick"
+                              Command="{Binding OpenDetailsCommand}" />
+            </DataGrid.InputBindings>
 
             <DataGrid.Columns>
 

@@ -4,10 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.ViewModels.Interfaces;
 using OrphanHousingService.Views;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.ViewModels
 {
@@ -20,8 +16,13 @@ namespace OrphanHousingService.ViewModels
         public MainViewModel(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            CurrentViewModel = _serviceProvider.GetRequiredService<ContractsViewModel>();
+            //CurrentViewModel = _serviceProvider.GetRequiredService<ContractsViewModel>();
 
+        }
+
+        public void Initialize()
+        {
+            CurrentViewModel = _serviceProvider.GetRequiredService<ContractsViewModel>();
         }
 
         [RelayCommand]
@@ -60,5 +61,30 @@ namespace OrphanHousingService.ViewModels
             CurrentViewModel = _serviceProvider.GetRequiredService<CommissionDecisionsViewModel>();
         }
 
+        [RelayCommand]
+        private void OpenUtilityDebts()
+        {
+            CurrentViewModel = _serviceProvider.GetRequiredService<UtilityDebtsViewModel>();
+        }
+
+        [RelayCommand]
+        private void OpenFamilyMembers()
+        {
+            CurrentViewModel = _serviceProvider.GetRequiredService<FamilyMembersViewModel>();
+        }
+
+        public void NavigateToPerson(Guid personId)
+        {
+            var vm = _serviceProvider.GetRequiredService<PeopleViewModel>();
+            CurrentViewModel = vm;
+            vm.SelectById(personId);
+        }
+
+        public void NavigateToApartment(Guid apartmentId)
+        {
+            var vm = _serviceProvider.GetRequiredService<ApartmentsViewModel>();
+            CurrentViewModel = vm;
+            vm.SelectById(apartmentId);
+        }
     }
 }

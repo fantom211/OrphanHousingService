@@ -31,6 +31,14 @@
             <views:CommissionDecisionsView/>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type vm:UtilityDebtsViewModel}">
+            <views:UtilityDebtsView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:FamilyMembersViewModel}">
+            <views:FamilyMembersView/>
+        </DataTemplate>
+
         <Style x:Key="SidebarButton" TargetType="Button">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="Transparent"/>

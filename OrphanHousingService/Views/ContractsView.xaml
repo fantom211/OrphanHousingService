@@ -1,61 +1,158 @@
 ﻿<UserControl x:Class="OrphanHousingService.Views.ContractsView"
+
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
         xmlns:local="clr-namespace:OrphanHousingService.Views"
+
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+
         xmlns:behaviors="clr-namespace:OrphanHousingService.Behaviors"
+
         mc:Ignorable="d"
+
         HorizontalAlignment="Stretch"
+
         VerticalAlignment="Stretch"
+
         >
+
     <Grid>
-        <DataGrid Style="{StaticResource ModernDataGrid}"
+
+        <DataGrid x:Name="ContractsDataGrid"
+            Style="{StaticResource ModernDataGrid}"
             AutoGenerateColumns="False"
               ItemsSource="{Binding Contracts}"
               SelectedItem="{Binding SelectedContract}"
-                IsReadOnly="True">
+                IsReadOnly="True"
+                PreviewMouseRightButtonDown="ContractsDataGrid_PreviewMouseRightButtonDown">
+
+
+
+            <DataGrid.InputBindings>
+
+                <MouseBinding Gesture="LeftDoubleClick"
+
+                              Command="{Binding OpenDetailsCommand}" />
+
+            </DataGrid.InputBindings>
+
+
+
+            <DataGrid.ContextMenu>
+
+                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+
+                    <MenuItem Header="Перейти к человеку"
+
+                              Command="{Binding NavigateToPersonCommand}" />
+
+                    <MenuItem Header="Перейти к квартире"
+
+                              Command="{Binding NavigateToApartmentCommand}" />
+
+                    <Separator />
+
+                    <MenuItem Header="Добавить долг (UtilityDebt)"
+
+                              Command="{Binding AddUtilityDebtCommand}" />
+
+                    <MenuItem Header="Добавить члена семьи"
+
+                              Command="{Binding AddFamilyMemberCommand}" />
+
+                </ContextMenu>
+
+            </DataGrid.ContextMenu>
+
+
 
             <DataGrid.Columns>
 
+
+
                 <DataGridTextColumn Header="Тип договора" Binding="{Binding DisplayContractType}"/>
 
+
+
                 <DataGridTextColumn
+
                 Header="Номер договора"
+
                 Binding="{Binding ContractNumber}" />
 
+
+
                 <DataGridTextColumn
+
                 Header="Дата договора"
+
                 Binding="{Binding ContractDate, StringFormat=dd.MM.yyyy}" />
 
-                <DataGridTextColumn
-                Header="Дата начала"
-                Binding="{Binding StartDate, StringFormat=dd.MM.yyyy}" />
+
 
                 <DataGridTextColumn
+
+                Header="Дата начала"
+
+                Binding="{Binding StartDate, StringFormat=dd.MM.yyyy}" />
+
+
+
+                <DataGridTextColumn
+
                 Header="Дата окончания"
+
                 Binding="{Binding EndDate, StringFormat=dd.MM.yyyy}" />
+
+
 
                 <DataGridTextColumn Header="Статус" Binding="{Binding DisplayStatus}"/>
 
+
+
                 <DataGridTextColumn
+
                 Header="Гражданин"
+
                 Binding="{Binding Person.FullName}" />
 
+
+
                 <DataGridTextColumn
+
                 Header="Квартира"
+
                 Binding="{Binding Apartment.Address}" />
 
+
+
                 <DataGridTextColumn
+
                 Header="Предыдущий договор"
+
                 Binding="{Binding PreviousContract.ContractNumber}" />
 
+
+
                 <DataGridTextColumn Header="Долг"
+
                     Binding="{Binding TotalDebt}" />
+
+
 
             </DataGrid.Columns>
 
+
+
         </DataGrid>
+
     </Grid>
+
 </UserControl>
+

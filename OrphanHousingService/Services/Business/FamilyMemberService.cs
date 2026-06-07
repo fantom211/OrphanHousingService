@@ -1,4 +1,5 @@
-﻿using OrphanHousingService.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using OrphanHousingService.Models;
 using OrphanHousingService.Repository;
 using OrphanHousingService.Services.Helpers;
 using System;
@@ -12,6 +13,14 @@ namespace OrphanHousingService.Services.Business
     public class FamilyMemberService : CrudService<FamilyMember>
     {
         public FamilyMemberService(OrphanHousingDbContext context) : base(context) { }
+
+        public async Task<List<FamilyMember>> GetAllAsync()
+        {
+            return await _context.FamilyMembers
+                .Include(x => x.Contract)
+                    .ThenInclude(c => c.Person)
+                .ToListAsync();
+        }
 
         public async Task CreateAsync(FamilyMember member)
         {
