@@ -2,89 +2,76 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using OrphanHousingService.ViewModels.Interfaces;
-using OrphanHousingService.Views;
 using System;
 
 namespace OrphanHousingService.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainViewModel : ObservableObject, IDisposable
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private IServiceScope? _viewScope;
+
         [ObservableProperty]
-        private ICrudViewModel currentViewModel;
+        private ICrudViewModel? currentViewModel;
 
-        public MainViewModel(IServiceProvider serviceProvider)
+        public MainViewModel(IServiceScopeFactory scopeFactory)
         {
-            _serviceProvider = serviceProvider;
-            //CurrentViewModel = _serviceProvider.GetRequiredService<ContractsViewModel>();
-
+            _scopeFactory = scopeFactory;
         }
 
         public void Initialize()
         {
-            CurrentViewModel = _serviceProvider.GetRequiredService<ContractsViewModel>();
+            OpenView<ContractsViewModel>();
         }
 
         [RelayCommand]
-        private void OpenContracts()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<ContractsViewModel>();
-        }
+        private void OpenContracts() => OpenView<ContractsViewModel>();
 
         [RelayCommand]
-        private void OpenPeople()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<PeopleViewModel>();
-        }
+        private void OpenPeople() => OpenView<PeopleViewModel>();
 
         [RelayCommand]
-        private void OpenApartments()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<ApartmentsViewModel>();
-        }
+        private void OpenApartments() => OpenView<ApartmentsViewModel>();
 
         [RelayCommand]
-        private void OpenApartmentStatusHistory()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<ApartmentStatusHistoriesViewModel>();
-        }
+        private void OpenApartmentStatusHistory() => OpenView<ApartmentStatusHistoriesViewModel>();
 
         [RelayCommand]
-        private void OpenApplications()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<ApplicationsViewModel>();
-        }
+        private void OpenApplications() => OpenView<ApplicationsViewModel>();
 
         [RelayCommand]
-        private void OpenCommissionDecisions()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<CommissionDecisionsViewModel>();
-        }
+        private void OpenCommissionDecisions() => OpenView<CommissionDecisionsViewModel>();
 
         [RelayCommand]
-        private void OpenUtilityDebts()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<UtilityDebtsViewModel>();
-        }
+        private void OpenUtilityDebts() => OpenView<UtilityDebtsViewModel>();
 
         [RelayCommand]
-        private void OpenFamilyMembers()
-        {
-            CurrentViewModel = _serviceProvider.GetRequiredService<FamilyMembersViewModel>();
-        }
+        private void OpenFamilyMembers() => OpenView<FamilyMembersViewModel>();
 
         public void NavigateToPerson(Guid personId)
         {
-            var vm = _serviceProvider.GetRequiredService<PeopleViewModel>();
-            CurrentViewModel = vm;
+            var vm = OpenView<PeopleViewModel>();
             vm.SelectById(personId);
         }
 
         public void NavigateToApartment(Guid apartmentId)
         {
-            var vm = _serviceProvider.GetRequiredService<ApartmentsViewModel>();
-            CurrentViewModel = vm;
+            var vm = OpenView<ApartmentsViewModel>();
             vm.SelectById(apartmentId);
+        }
+
+        private T OpenView<T>() where T : class, ICrudViewModel
+        {
+            _viewScope?.Dispose();
+            _viewScope = _scopeFactory.CreateScope();
+            var vm = _viewScope.ServiceProvider.GetRequiredService<T>();
+            CurrentViewModel = vm;
+            return vm;
+        }
+
+        public void Dispose()
+        {
+            _viewScope?.Dispose();
         }
     }
 }

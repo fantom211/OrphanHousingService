@@ -17,7 +17,7 @@ namespace OrphanHousingService.ViewModels
     public partial class CommissionDecisionsViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly CommissionDecisionService _decisionService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ListCollectionManager<CommissionDecision> _listManager;
 
         public ICollectionView CommissionDecisions => _listManager.View;
@@ -30,10 +30,10 @@ namespace OrphanHousingService.ViewModels
 
         public CommissionDecisionsViewModel(
             CommissionDecisionService decisionService,
-            IServiceProvider serviceProvider)
+            IServiceScopeFactory scopeFactory)
         {
             _decisionService = decisionService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _listManager = new ListCollectionManager<CommissionDecision>(d => new[]
             {
                 d.DecisionNumber,
@@ -43,7 +43,7 @@ namespace OrphanHousingService.ViewModels
                 d.Reason,
                 d.Comment
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Решения комиссии");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
@@ -57,7 +57,14 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddCommissionDecisionView>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddCommissionDecisionViewModel>();
+            await vm.PrepareStandaloneAsync();
+
+            var window = new AddCommissionDecisionView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -69,10 +76,14 @@ namespace OrphanHousingService.ViewModels
             if (SelectedCommissionDecision == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddCommissionDecisionViewModel>();
-            vm.InitializeForEdit(SelectedCommissionDecision);
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddCommissionDecisionViewModel>();
+            await vm.InitializeForEditAsync(SelectedCommissionDecision);
 
-            var window = new AddCommissionDecisionView(vm);
+            var window = new AddCommissionDecisionView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -104,8 +115,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedCommissionDecision == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<CommissionDecisionDetailsView>();
-            DetailWindowHelper.Show(window, new CommissionDecisionDetailsViewModel(SelectedCommissionDecision));
+            DetailWindowHelper.Show(
+                new CommissionDecisionDetailsView(),
+                new CommissionDecisionDetailsViewModel(SelectedCommissionDecision));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

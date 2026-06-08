@@ -13,8 +13,12 @@ using OrphanHousingService.ViewModels.Details;
 using OrphanHousingService.Views;
 using OrphanHousingService.Views.CrudViews;
 using OrphanHousingService.Views.Details;
+using OrphanHousingService.Resources;
 using System.Configuration;
 using System.Data;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using ApplicationModel = OrphanHousingService.Models.Application;
 
@@ -27,8 +31,14 @@ namespace OrphanHousingService
     {
         public static IServiceProvider Services { get; private set; }
         public static IConfiguration Configuration { get; private set; }
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
+            var culture = new CultureInfo("ru-RU");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            Enums.Culture = culture;
+
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false)
@@ -43,8 +53,45 @@ namespace OrphanHousingService
             var vm = Services.GetRequiredService<MainViewModel>();
             mainWindow.DataContext = vm;
             mainWindow.Show();
+
+            await Task.Run(RunDatabaseStartupInternal).ConfigureAwait(true);
+
             vm.Initialize();
             base.OnStartup(e);
+        }
+
+        private static void RunDatabaseStartupInternal()
+        {
+            try
+            {
+                using var scope = Services.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<OrphanHousingDbContext>();
+                db.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                Current.Dispatcher.Invoke(() => MessageBox.Show(
+                    $"Не удалось применить миграции базы данных.\n{ex.Message}\n\n" +
+                    "Данные могут не отображаться, пока схема БД не соответствует модели приложения.",
+                    "Ошибка базы данных",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error));
+            }
+
+            try
+            {
+                using var scope = Services.CreateScope();
+                var systemEntityService = scope.ServiceProvider.GetRequiredService<SystemEntityService>();
+                systemEntityService.EnsureSeededAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                Current.Dispatcher.Invoke(() => MessageBox.Show(
+                    $"Не удалось инициализировать системные сущности.\n{ex.Message}",
+                    "Ошибка базы данных",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error));
+            }
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -82,44 +129,45 @@ namespace OrphanHousingService
 
             //ViewModels
             services.AddSingleton<MainViewModel>();
-            services.AddTransient<ApartmentsViewModel>();
-            services.AddTransient<PeopleViewModel>();
-            services.AddTransient<ContractsViewModel>();
-            services.AddTransient<AddPersonViewModel>();
-            services.AddTransient<AddApartmentViewModel>();
-            services.AddTransient<AddApartmentStatusHistoryViewModel>();
-            services.AddTransient<ApartmentStatusHistoriesViewModel>();
-            services.AddTransient<AddContractViewModel>();
-            services.AddTransient<ApplicationsViewModel>();
-            services.AddTransient<AddApplicationViewModel>();
-            services.AddTransient<ApartmentStatusHistoryDetailsViewModel>();
-            services.AddTransient<CommissionDecisionsViewModel>();
-            services.AddTransient<AddCommissionDecisionViewModel>();
-            services.AddTransient<PersonDetailsViewModel>();
-            services.AddTransient<ApartmentDetailsViewModel>();
-            services.AddTransient<ContractHistoryViewModel>();
-            services.AddTransient<ContractDetailsViewModel>();
-            services.AddTransient<ApplicationDetailsViewModel>();
-            services.AddTransient<CommissionDecisionDetailsViewModel>();
-            services.AddTransient<UtilityDebtDetailsViewModel>();
-            services.AddTransient<FamilyMemberDetailsViewModel>();
-            services.AddTransient<UtilityDebtsViewModel>();
-            services.AddTransient<FamilyMembersViewModel>();
-            services.AddTransient<AddUtilityDebtViewModel>();
-            services.AddTransient<AddFamilyMemberViewModel>();
+            services.AddScoped<ApartmentsViewModel>();
+            services.AddScoped<PeopleViewModel>();
+            services.AddScoped<ContractsViewModel>();
+            services.AddScoped<AddPersonViewModel>();
+            services.AddScoped<AddApartmentViewModel>();
+            services.AddScoped<AddApartmentStatusHistoryViewModel>();
+            services.AddScoped<ApartmentStatusHistoriesViewModel>();
+            services.AddScoped<AddContractViewModel>();
+            services.AddScoped<ApplicationsViewModel>();
+            services.AddScoped<AddApplicationViewModel>();
+            services.AddScoped<ApartmentStatusHistoryDetailsViewModel>();
+            services.AddScoped<CommissionDecisionsViewModel>();
+            services.AddScoped<AddCommissionDecisionViewModel>();
+            services.AddScoped<PersonDetailsViewModel>();
+            services.AddScoped<ApartmentDetailsViewModel>();
+            services.AddScoped<ContractHistoryViewModel>();
+            services.AddScoped<ContractDetailsViewModel>();
+            services.AddScoped<ApplicationDetailsViewModel>();
+            services.AddScoped<CommissionDecisionDetailsViewModel>();
+            services.AddScoped<UtilityDebtDetailsViewModel>();
+            services.AddScoped<FamilyMemberDetailsViewModel>();
+            services.AddScoped<UtilityDebtsViewModel>();
+            services.AddScoped<FamilyMembersViewModel>();
+            services.AddScoped<AddUtilityDebtViewModel>();
+            services.AddScoped<AddFamilyMemberViewModel>();
 
             //Сервисы
-            services.AddTransient<ContractService>();
-            services.AddTransient<ApartmentService>();
-            services.AddTransient<ApartmentStatusHistoryService>();
-            services.AddTransient<PersonService>();
-            services.AddTransient<UtilityDebtService>();
-            services.AddTransient<FamilyMemberService>();
-            services.AddTransient<ApplicationService>();
-            services.AddTransient<CommissionDecisionService>();
-            services.AddTransient<ContractWorkFlowService>();
-            services.AddTransient<ContractHistoryService>();
-            services.AddTransient(typeof(CrudService<>));
+            services.AddScoped<ContractService>();
+            services.AddScoped<ApartmentService>();
+            services.AddScoped<ApartmentStatusHistoryService>();
+            services.AddScoped<PersonService>();
+            services.AddScoped<UtilityDebtService>();
+            services.AddScoped<FamilyMemberService>();
+            services.AddScoped<ApplicationService>();
+            services.AddScoped<CommissionDecisionService>();
+            services.AddScoped<ContractWorkFlowService>();
+            services.AddScoped<ContractHistoryService>();
+            services.AddScoped<SystemEntityService>();
+            services.AddScoped(typeof(CrudService<>));
             services.AddScoped<IValidator<Contract>, ContractValidator>();
             services.AddScoped<IValidator<Apartment>, ApartmentValidator>();
             services.AddScoped<IValidator<ApplicationModel>, ApplicationValidator>();

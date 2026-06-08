@@ -1,48 +1,69 @@
 <Window x:Class="OrphanHousingService.Views.Details.FamilyMemberDetailsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
         Title="Член семьи"
-        Height="350"
+        Height="400"
         Width="700"
+        WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
+        <StackPanel>
+            <TextBlock Text="Сведения о члене семьи" Style="{StaticResource DetailWindowTitle}"/>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Договор:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FamilyMember.Contract.ContractNumber}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Договор:" Grid.Row="0" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.Contract.ContractNumber}" Grid.Row="0" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Гражданин:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FamilyMember.Contract.Person.FullName}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Гражданин:" Grid.Row="1" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.Contract.Person.FullName}" Grid.Row="1" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="ФИО:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FamilyMember.FullName}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="ФИО:" Grid.Row="2" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.FullName}" Grid.Row="2" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Дата рождения:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FamilyMember.BirthDate, StringFormat=dd.MM.yyyy}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Дата рождения:" Grid.Row="3" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.BirthDate, StringFormat=dd.MM.yyyy}" Grid.Row="3" Grid.Column="1" Margin="0,5"/>
-
-        <TextBlock Text="Родство:" Grid.Row="4" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.DisplayRelationshipType}" Grid.Row="4" Grid.Column="1" Margin="0,5"/>
-
-        <TextBlock Text="Идентификатор:" Grid.Row="5" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.Id}" Grid.Row="5" Grid.Column="1" Margin="0,5"/>
-
-        <TextBlock Text="Договор (Id):" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding FamilyMember.ContractId}" Grid.Row="6" Grid.Column="1" Margin="0,5"/>
-    </Grid>
+            <Border Style="{StaticResource DetailFieldBorder}" Margin="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Родство:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding FamilyMember.DisplayRelationshipType}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

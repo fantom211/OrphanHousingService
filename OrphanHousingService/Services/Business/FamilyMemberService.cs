@@ -18,6 +18,7 @@ namespace OrphanHousingService.Services.Business
         public async Task<List<FamilyMember>> GetAllAsync()
         {
             return await _context.FamilyMembers
+                .AsNoTracking()
                 .Include(x => x.Contract)
                     .ThenInclude(c => c.Person)
                 .ToListAsync();

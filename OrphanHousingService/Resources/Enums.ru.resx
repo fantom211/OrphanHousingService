@@ -198,4 +198,28 @@
   <data name="UtilityDebtStatus_Unpaid" xml:space="preserve">
     <value>Не оплачено</value>
   </data>
+  <data name="RelationshipType_Parent" xml:space="preserve">
+    <value>Родитель</value>
+  </data>
+  <data name="RelationshipType_Child" xml:space="preserve">
+    <value>Ребёнок</value>
+  </data>
+  <data name="RelationshipType_Guardian" xml:space="preserve">
+    <value>Опекун</value>
+  </data>
+  <data name="RelationshipType_Sibling" xml:space="preserve">
+    <value>Брат / сестра</value>
+  </data>
+  <data name="RelationshipType_Other" xml:space="preserve">
+    <value>Иное</value>
+  </data>
+  <data name="ContractCounterpartyType_Citizen" xml:space="preserve">
+    <value>Гражданин</value>
+  </data>
+  <data name="ContractCounterpartyType_SpecialHousingFund" xml:space="preserve">
+    <value>Специализированный жилищный фонд</value>
+  </data>
+  <data name="ContractCounterpartyType_SocialRent" xml:space="preserve">
+    <value>Социальный найм</value>
+  </data>
 </root>

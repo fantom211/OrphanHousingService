@@ -16,7 +16,7 @@ namespace OrphanHousingService.ViewModels
 {
     public partial class PeopleViewModel : ObservableObject, ISearchableListViewModel, ISelectableViewModel
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly PersonService _personService;
         private readonly ListCollectionManager<Person> _listManager;
         private Guid? _pendingSelectionId;
@@ -31,24 +31,24 @@ namespace OrphanHousingService.ViewModels
 
         public PeopleViewModel(
              PersonService personService,
-             IServiceProvider serviceProvider)
+             IServiceScopeFactory scopeFactory)
         {
             _personService = personService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _listManager = new ListCollectionManager<Person>(p => new[]
             {
                 p.FullName,
                 p.PassportData,
                 p.Phone
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Люди");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
 
         public async Task LoadAsync()
         {
-            var people = await _personService.GetAllAsync();
+            var people = await _personService.GetCitizensAsync();
             _listManager.SetItems(people);
 
             if (_pendingSelectionId.HasValue)
@@ -69,7 +69,12 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddPersonView>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddPersonViewModel>();
+            var window = new AddPersonView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -81,7 +86,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedPerson == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddPersonViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddPersonViewModel>();
             vm.InitializeForEdit(SelectedPerson);
 
             var window = new AddPersonView(vm);
@@ -116,8 +122,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedPerson == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<PersonDetailsView>();
-            DetailWindowHelper.Show(window, new PersonDetailsViewModel(SelectedPerson, _personService));
+            DetailWindowHelper.Show(
+                new PersonDetailsView(),
+                new PersonDetailsViewModel(SelectedPerson, _personService));
         }
 
         [RelayCommand]
@@ -126,7 +133,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedPerson == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddContractViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
             vm.InitializeForPerson(SelectedPerson.Id);
 
             var window = new AddContractView(vm)
@@ -144,8 +152,11 @@ namespace OrphanHousingService.ViewModels
             if (SelectedPerson == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddFamilyMemberViewModel>();
-            vm.InitializeForPerson(SelectedPerson.Id);
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddFamilyMemberViewModel>();
+            await vm.InitializeForPersonAsync(SelectedPerson.Id);
+            if (vm.InitializationFailed)
+                return;
 
             var window = new AddFamilyMemberView(vm)
             {

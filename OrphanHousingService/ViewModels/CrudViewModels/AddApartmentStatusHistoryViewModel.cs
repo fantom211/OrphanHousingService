@@ -24,6 +24,9 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         public ObservableCollection<Apartment> Apartments { get; } = [];
 
         [ObservableProperty]
+        private string windowTitle = "Добавить запись истории статуса";
+
+        [ObservableProperty]
         private Apartment? selectedApartment;
 
         [ObservableProperty]

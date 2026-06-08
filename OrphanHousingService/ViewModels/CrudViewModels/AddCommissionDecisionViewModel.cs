@@ -6,7 +6,6 @@ using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
 using OrphanHousingService.ViewModels.Helpers;
-using System;
 using System.Collections.ObjectModel;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
@@ -17,9 +16,9 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         private readonly ApplicationService _applicationService;
         private readonly ContractWorkFlowService _workflowService;
         private Guid? _editId;
+        private bool _isPrefilledFromApplication;
 
-        [ObservableProperty]
-        private ObservableCollection<Application> applications = [];
+        public ObservableCollection<Application> Applications { get; } = [];
 
         public IReadOnlyList<EnumItem<DecisionType>> DecisionTypes { get; } =
             EnumHelper.GetItems<DecisionType>();
@@ -55,7 +54,9 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         private string? comment;
 
         public bool IsEditMode => _editId.HasValue;
-        public bool IsApplicationEditable => !IsEditMode;
+        public bool IsApplicationEditable => !IsEditMode && !_isPrefilledFromApplication;
+        public bool IsDecisionTypeEditable => !IsEditMode && !_isPrefilledFromApplication;
+        public bool IsResultEditable => !IsEditMode && !_isPrefilledFromApplication;
 
         public Action<bool>? CloseAction { get; set; }
 
@@ -68,10 +69,14 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             _applicationService = applicationService;
             _workflowService = workflowService;
             SuggestedDecisionNumber = _commissionDecisionService.GenerateNumber();
-            _ = LoadAsync();
         }
 
-        public void InitializeForEdit(CommissionDecision decision)
+        public async Task PrepareStandaloneAsync()
+        {
+            await LoadApplicationsAsync();
+        }
+
+        public async Task InitializeForEditAsync(CommissionDecision decision)
         {
             _editId = decision.Id;
             WindowTitle = "Редактировать решение комиссии";
@@ -79,25 +84,54 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             DecisionDate = decision.DecisionDate;
             Reason = decision.Reason;
             Comment = decision.Comment;
-            OnPropertyChanged(nameof(IsApplicationEditable));
-            _ = ApplyApplicationAsync(decision.ApplicationId);
+            NotifyEditabilityChanged();
+            await LoadApplicationsAsync();
+            SelectedApplication = Applications.FirstOrDefault(a => a.Id == decision.ApplicationId);
         }
 
-        private async Task ApplyApplicationAsync(Guid applicationId)
+        public async Task InitializeForApplicationAsync(Application application, DecisionResult result)
         {
-            if (Applications.Count == 0)
-                await LoadAsync();
-
-            SelectedApplication = Applications.FirstOrDefault(a => a.Id == applicationId);
+            _isPrefilledFromApplication = true;
+            WindowTitle = result == DecisionResult.Approved
+                ? "Одобрить заявление"
+                : "Отклонить заявление";
+            CurrentResult = result;
+            CurrentDecisionType = MapApplicationType(application.ApplicationType, result);
+            DecisionDate = DateTime.Today;
+            Comment = application.Comment;
+            SelectedApplication = application;
+            NotifyEditabilityChanged();
+            await LoadApplicationsAsync();
+            SelectedApplication = Applications.FirstOrDefault(a => a.Id == application.Id) ?? application;
         }
 
-        private async Task LoadAsync()
+        private void NotifyEditabilityChanged()
+        {
+            OnPropertyChanged(nameof(IsApplicationEditable));
+            OnPropertyChanged(nameof(IsDecisionTypeEditable));
+            OnPropertyChanged(nameof(IsResultEditable));
+        }
+
+        private static DecisionType MapApplicationType(ApplicationType type, DecisionResult result)
+        {
+            if (result == DecisionResult.Rejected)
+                return DecisionType.Refusal;
+
+            return type switch
+            {
+                ApplicationType.ContractReduction => DecisionType.ContractReduction,
+                ApplicationType.SocialRentTransfer => DecisionType.SocialRentTransfer,
+                ApplicationType.Extension => DecisionType.Extension,
+                _ => DecisionType.Refusal
+            };
+        }
+
+        private async Task LoadApplicationsAsync()
         {
             var items = await _applicationService.GetAllAsync();
-
             Applications.Clear();
-            foreach (var a in items)
-                Applications.Add(a);
+            foreach (var application in items)
+                Applications.Add(application);
         }
 
         [RelayCommand]
@@ -105,6 +139,13 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         {
             try
             {
+                if (SelectedApplication == null)
+                {
+                    ValidationDialogHelper.ShowError(
+                        new Exception("Выберите заявление."));
+                    return;
+                }
+
                 if (IsEditMode)
                 {
                     var entity = new CommissionDecision
@@ -113,7 +154,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
                         DecisionNumber = string.IsNullOrWhiteSpace(DecisionNumber)
                             ? SuggestedDecisionNumber
                             : DecisionNumber,
-                        DecisionDate = DecisionDate,
+                        DecisionDate = DecisionDate.Date,
                         Reason = Reason,
                         Comment = Comment
                     };
@@ -124,12 +165,12 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
                 {
                     var entity = new CommissionDecision
                     {
-                        ApplicationId = SelectedApplication!.Id,
+                        ApplicationId = SelectedApplication.Id,
                         DecisionType = CurrentDecisionType,
                         DecisionNumber = string.IsNullOrWhiteSpace(DecisionNumber)
                             ? SuggestedDecisionNumber
                             : DecisionNumber,
-                        DecisionDate = DecisionDate,
+                        DecisionDate = DecisionDate.Date,
                         Result = CurrentResult,
                         Reason = Reason,
                         Comment = Comment

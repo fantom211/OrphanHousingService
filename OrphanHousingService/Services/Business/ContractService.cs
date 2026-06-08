@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OrphanHousingService.Models;
 using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Repository;
 using OrphanHousingService.Services.Helpers;
 using System;
@@ -13,14 +14,10 @@ namespace OrphanHousingService.Services.Business
 {
     public class ContractService : CrudService<Contract>
     {
-        private readonly ContractHistoryService _historyService;
-
         public ContractService(
             OrphanHousingDbContext context,
-            IValidator<Contract> validator,
-            ContractHistoryService historyService) : base(context, validator)
+            IValidator<Contract> validator) : base(context, validator)
         {
-            _historyService = historyService;
         }
 
         public async Task<List<Contract>> GetAllAsync()
@@ -51,6 +48,13 @@ namespace OrphanHousingService.Services.Business
                     c.Status == ContractStatus.Active);
         }
 
+        public async Task<Contract?> GetByIdWithPersonAsync(Guid contractId)
+        {
+            return await _context.Contracts
+                .Include(c => c.Person)
+                .FirstOrDefaultAsync(c => c.Id == contractId);
+        }
+
         public async Task CreateAsync(Contract contract)
         {
             contract.Id = Guid.NewGuid();
@@ -59,13 +63,42 @@ namespace OrphanHousingService.Services.Business
             if (string.IsNullOrWhiteSpace(contract.ContractNumber))
                 contract.ContractNumber = GenerateNumber();
 
-            await AddAsync(contract);
+            if (contract is IHasCreatedAt withCreatedAt && withCreatedAt.CreatedAt == default)
+                withCreatedAt.CreatedAt = DateTime.UtcNow;
 
-            await _historyService.RecordAsync(
-                contract.Id,
-                "Создание",
-                newStatus: contract.Status,
-                comment: $"Договор №{contract.ContractNumber}");
+            await ValidateAsync(contract);
+            await _context.Contracts.AddAsync(contract);
+
+            _context.ContractHistories.Add(new ContractHistory
+            {
+                Id = Guid.NewGuid(),
+                ContractId = contract.Id,
+                ChangeDate = DateTime.UtcNow,
+                OperationType = "Создание",
+                NewStatus = contract.Status,
+                Comment = $"Договор №{contract.ContractNumber}",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            if (SystemEntityIds.IsCitizen(contract.PersonId))
+            {
+                var apartment = await _context.Apartments.FindAsync(contract.ApartmentId);
+                if (apartment == null)
+                    throw new Exception("Квартира не найдена");
+
+                apartment.CurrentStatus = ApartmentStatus.Distributed;
+                _context.ApartmentStatusHistories.Add(new ApartmentStatusHistory
+                {
+                    Id = Guid.NewGuid(),
+                    ApartmentId = contract.ApartmentId,
+                    Status = ApartmentStatus.Distributed,
+                    ChangeDate = DateTime.UtcNow,
+                    Basis = $"Оформлен договор №{contract.ContractNumber}",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            await SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Contract contract)
@@ -88,7 +121,7 @@ namespace OrphanHousingService.Services.Business
 
             if (oldStatus != existing.Status)
             {
-                await _historyService.RecordAsync(
+                await RecordHistoryAsync(
                     existing.Id,
                     "Изменение статуса",
                     oldStatus,
@@ -125,7 +158,7 @@ namespace OrphanHousingService.Services.Business
 
             await SaveChangesAsync();
 
-            await _historyService.RecordAsync(
+            await RecordHistoryAsync(
                 id,
                 "Закрытие",
                 oldStatus,
@@ -156,7 +189,7 @@ namespace OrphanHousingService.Services.Business
 
             await CreateAsync(newContract);
 
-            await _historyService.RecordAsync(
+            await RecordHistoryAsync(
                 oldContractId,
                 "Продление (закрытие старого)",
                 ContractStatus.Active,
@@ -174,7 +207,7 @@ namespace OrphanHousingService.Services.Business
             old.EndDate = old.EndDate.AddYears(5);
             await SaveChangesAsync();
 
-            await _historyService.RecordAsync(
+            await RecordHistoryAsync(
                 oldContractId,
                 "Продление",
                 comment: $"Новая дата окончания: {old.EndDate:dd.MM.yyyy}");
@@ -194,7 +227,7 @@ namespace OrphanHousingService.Services.Business
             newContract.ContractType = ContractType.SocialRent;
             await SaveChangesAsync();
 
-            await _historyService.RecordAsync(
+            await RecordHistoryAsync(
                 newContract.Id,
                 "Перевод в соц. найм",
                 ContractStatus.Active,
@@ -210,10 +243,33 @@ namespace OrphanHousingService.Services.Business
             oldContract.EndDate = oldContract.EndDate.AddYears(-2);
             await SaveChangesAsync();
 
-            await _historyService.RecordAsync(
+            await RecordHistoryAsync(
                 contractId,
                 "Сокращение срока",
                 comment: $"Новая дата окончания: {oldContract.EndDate:dd.MM.yyyy}");
+        }
+
+        private async Task RecordHistoryAsync(
+            Guid contractId,
+            string operationType,
+            ContractStatus? oldStatus = null,
+            ContractStatus? newStatus = null,
+            string? basis = null,
+            string? comment = null)
+        {
+            await _context.ContractHistories.AddAsync(new ContractHistory
+            {
+                Id = Guid.NewGuid(),
+                ContractId = contractId,
+                ChangeDate = DateTime.UtcNow,
+                OperationType = operationType,
+                OldStatus = oldStatus,
+                NewStatus = newStatus,
+                Basis = NullableStringHelper.Normalize(basis),
+                Comment = NullableStringHelper.Normalize(comment),
+                CreatedAt = DateTime.UtcNow
+            });
+            await SaveChangesAsync();
         }
     }
 }

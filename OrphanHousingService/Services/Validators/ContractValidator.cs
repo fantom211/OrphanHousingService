@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using OrphanHousingService.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.Services.Validators
 {
@@ -33,10 +28,12 @@ namespace OrphanHousingService.Services.Validators
                 .WithMessage("Введите дату окончания");
 
             RuleFor(x => x.ContractType)
-                .NotEmpty();
+                .IsInEnum()
+                .WithMessage("Укажите тип договора");
 
             RuleFor(x => x.Status)
-                .NotEmpty();
+                .IsInEnum()
+                .WithMessage("Укажите статус договора");
         }
     }
 }

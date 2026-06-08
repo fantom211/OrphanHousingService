@@ -6,7 +6,6 @@ using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
 using OrphanHousingService.ViewModels.Helpers;
-using System;
 using System.Collections.ObjectModel;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
@@ -46,6 +45,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         public bool ShowCitizenInfo => CreationSource == FamilyMemberCreationSource.FromContract;
         public bool ShowPersonSourceInfo => CreationSource == FamilyMemberCreationSource.FromPerson;
         public bool ShowCitizenName => !string.IsNullOrWhiteSpace(CitizenDisplayName);
+        public bool InitializationFailed { get; private set; }
 
         partial void OnCitizenDisplayNameChanged(string? value) =>
             OnPropertyChanged(nameof(ShowCitizenName));
@@ -72,10 +72,17 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         {
             _familyMemberService = familyMemberService;
             _contractService = contractService;
-            _ = LoadAsync();
         }
 
-        public void InitializeForContract(Guid contractId)
+        public async Task PrepareAsync()
+        {
+            if (CreationSource != FamilyMemberCreationSource.Standalone)
+                return;
+
+            await LoadAllContractsAsync();
+        }
+
+        public async Task InitializeForContractAsync(Guid contractId)
         {
             CreationSource = FamilyMemberCreationSource.FromContract;
             WindowTitle = "Добавить члена семьи (по договору)";
@@ -84,10 +91,10 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             OnPropertyChanged(nameof(IsContractEditable));
             OnPropertyChanged(nameof(ShowCitizenInfo));
             OnPropertyChanged(nameof(ShowPersonSourceInfo));
-            _ = ApplyPrefilledContractAsync();
+            await ApplyPrefilledContractAsync();
         }
 
-        public async void InitializeForPerson(Guid personId)
+        public async Task InitializeForPersonAsync(Guid personId)
         {
             CreationSource = FamilyMemberCreationSource.FromPerson;
             WindowTitle = "Добавить члена семьи (по гражданину)";
@@ -99,18 +106,18 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             var contract = await _contractService.GetActiveContractForPersonAsync(personId);
             if (contract == null)
             {
+                InitializationFailed = true;
                 ValidationDialogHelper.ShowError(
                     new Exception("У гражданина нет активного договора"));
-                CloseAction?.Invoke(false);
                 return;
             }
 
             CitizenDisplayName = contract.Person?.FullName ?? "—";
             _prefilledContractId = contract.Id;
-            await ApplyPrefilledContractAsync();
+            await SetPrefilledContractAsync(contract);
         }
 
-        public void InitializeForEdit(FamilyMember member)
+        public async Task InitializeForEditAsync(FamilyMember member)
         {
             _editId = member.Id;
             WindowTitle = "Редактировать члена семьи";
@@ -120,7 +127,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             _prefilledContractId = member.ContractId;
             IsContractLocked = true;
             OnPropertyChanged(nameof(IsContractEditable));
-            _ = ApplyPrefilledContractAsync();
+            await ApplyPrefilledContractAsync();
         }
 
         partial void OnIsContractLockedChanged(bool value)
@@ -133,16 +140,26 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             if (!_prefilledContractId.HasValue)
                 return;
 
-            if (Contracts.Count == 0)
-                await LoadAsync();
+            var contract = await _contractService.GetByIdWithPersonAsync(_prefilledContractId.Value);
+            if (contract == null)
+                return;
 
-            SelectedContract = Contracts.FirstOrDefault(c => c.Id == _prefilledContractId.Value);
-
-            if (CreationSource == FamilyMemberCreationSource.FromContract)
-                CitizenDisplayName = SelectedContract?.Person?.FullName ?? "—";
+            await SetPrefilledContractAsync(contract);
         }
 
-        private async Task LoadAsync()
+        private Task SetPrefilledContractAsync(Contract contract)
+        {
+            Contracts.Clear();
+            Contracts.Add(contract);
+            SelectedContract = contract;
+
+            if (CreationSource == FamilyMemberCreationSource.FromContract)
+                CitizenDisplayName = contract.Person?.FullName ?? "—";
+
+            return Task.CompletedTask;
+        }
+
+        private async Task LoadAllContractsAsync()
         {
             var contracts = await _contractService.GetAllAsync();
 

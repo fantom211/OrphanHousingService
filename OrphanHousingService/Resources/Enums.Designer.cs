@@ -302,5 +302,77 @@ namespace OrphanHousingService.Resources {
                 return ResourceManager.GetString("UtilityDebtStatus_Unpaid", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Parent.
+        /// </summary>
+        public static string RelationshipType_Parent {
+            get {
+                return ResourceManager.GetString("RelationshipType_Parent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Child.
+        /// </summary>
+        public static string RelationshipType_Child {
+            get {
+                return ResourceManager.GetString("RelationshipType_Child", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Guardian.
+        /// </summary>
+        public static string RelationshipType_Guardian {
+            get {
+                return ResourceManager.GetString("RelationshipType_Guardian", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Sibling.
+        /// </summary>
+        public static string RelationshipType_Sibling {
+            get {
+                return ResourceManager.GetString("RelationshipType_Sibling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Other.
+        /// </summary>
+        public static string RelationshipType_Other {
+            get {
+                return ResourceManager.GetString("RelationshipType_Other", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Citizen.
+        /// </summary>
+        public static string ContractCounterpartyType_Citizen {
+            get {
+                return ResourceManager.GetString("ContractCounterpartyType_Citizen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на SpecialHousingFund.
+        /// </summary>
+        public static string ContractCounterpartyType_SpecialHousingFund {
+            get {
+                return ResourceManager.GetString("ContractCounterpartyType_SpecialHousingFund", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на SocialRent.
+        /// </summary>
+        public static string ContractCounterpartyType_SocialRent {
+            get {
+                return ResourceManager.GetString("ContractCounterpartyType_SocialRent", resourceCulture);
+            }
+        }
     }
 }

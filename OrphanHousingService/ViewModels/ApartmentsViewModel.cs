@@ -18,7 +18,7 @@ namespace OrphanHousingService.ViewModels
     {
         private readonly ApartmentService _apartmentService;
         private readonly ApartmentStatusHistoryService _historyService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ListCollectionManager<Apartment> _listManager;
         private Guid? _pendingSelectionId;
 
@@ -33,17 +33,17 @@ namespace OrphanHousingService.ViewModels
         public ApartmentsViewModel(
             ApartmentService apartmentService,
             ApartmentStatusHistoryService historyService,
-            IServiceProvider serviceProvider)
+            IServiceScopeFactory scopeFactory)
         {
             _apartmentService = apartmentService;
             _historyService = historyService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _listManager = new ListCollectionManager<Apartment>(a => new[]
             {
                 a.Address,
                 a.CadastralNumber
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Квартиры");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
@@ -71,7 +71,12 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddApartmentView>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddApartmentViewModel>();
+            var window = new AddApartmentView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -83,7 +88,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedApartment == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddApartmentViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddApartmentViewModel>();
             vm.InitializeForEdit(SelectedApartment);
 
             var window = new AddApartmentView(vm);
@@ -118,8 +124,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedApartment == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<ApartmentDetailsView>();
-            DetailWindowHelper.Show(window, new ApartmentDetailsViewModel(SelectedApartment, _historyService));
+            DetailWindowHelper.Show(
+                new ApartmentDetailsView(),
+                new ApartmentDetailsViewModel(SelectedApartment, _historyService));
         }
 
         [RelayCommand]
@@ -128,7 +135,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedApartment == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddContractViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
             vm.InitializeForApartment(SelectedApartment.Id);
 
             var window = new AddContractView(vm)

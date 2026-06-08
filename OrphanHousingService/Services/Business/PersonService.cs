@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using OrphanHousingService.Models;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Repository;
 using OrphanHousingService.Services.Helpers;
 using System;
@@ -19,6 +20,14 @@ namespace OrphanHousingService.Services.Business
         public async Task<List<Person>> GetAllAsync()
         {
             return await _context.Persons.ToListAsync();
+        }
+
+        public async Task<List<Person>> GetCitizensAsync()
+        {
+            return await _context.Persons
+                .Where(p => p.Id != SystemEntityIds.SpecialHousingFund &&
+                            p.Id != SystemEntityIds.SocialRent)
+                .ToListAsync();
         }
 
         public async Task CreateAsync(Person person)
@@ -42,6 +51,9 @@ namespace OrphanHousingService.Services.Business
 
         public async Task UpdateAsync(Person person)
         {
+            if (SystemEntityIds.IsSystemEntity(person.Id))
+                throw new Exception("Системную сущность нельзя редактировать");
+
             var existing = await GetByIdAsync(person.Id);
             if (existing == null)
                 throw new Exception("Человек не найден");
@@ -70,6 +82,9 @@ namespace OrphanHousingService.Services.Business
 
         public async Task DeleteAsync(Guid id)
         {
+            if (SystemEntityIds.IsSystemEntity(id))
+                throw new Exception("Системную сущность нельзя удалить");
+
             if (await _context.Contracts.AnyAsync(c => c.PersonId == id))
                 throw new Exception("Невозможно удалить: у человека есть договоры");
 

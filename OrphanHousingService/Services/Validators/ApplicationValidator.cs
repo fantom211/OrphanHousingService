@@ -23,8 +23,7 @@ namespace OrphanHousingService.Services.Validators
             RuleFor(x => x.ApplicationDate)
                 .NotEmpty()
                 .WithMessage("Дата заявления обязательна")
-                .LessThanOrEqualTo(DateTime.Today)
-                .WithMessage("Дата заявления не может быть в будущем");
+                .MustNotBeFutureDate("Дата заявления не может быть в будущем");
 
             RuleFor(x => x.Status)
                 .IsInEnum()

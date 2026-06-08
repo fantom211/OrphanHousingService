@@ -4,53 +4,79 @@
         Title="Договор"
         Height="620"
         Width="900"
-        ResizeMode="CanResize"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Сведения о договоре" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Сведения о договоре" Style="{StaticResource DetailWindowTitle}"/>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="220"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Номер:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Contract.ContractNumber}" Style="{StaticResource DetailValueText}"/>
+                    <TextBlock Grid.Column="2" Text="Статус:" Style="{StaticResource DetailLabelText}" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Contract.DisplayStatus}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Номер:" Grid.Row="0" Grid.Column="0" Margin="0,4"/>
-            <TextBlock Text="{Binding Contract.ContractNumber}" Grid.Row="0" Grid.Column="1" Margin="0,4"/>
-            <TextBlock Text="Статус:" Grid.Row="0" Grid.Column="2" Margin="0,4"/>
-            <TextBlock Text="{Binding Contract.DisplayStatus}" Grid.Row="0" Grid.Column="3" Margin="0,4"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Тип:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Contract.DisplayContractType}" Style="{StaticResource DetailValueText}"/>
+                    <TextBlock Grid.Column="2" Text="Долг:" Style="{StaticResource DetailLabelText}" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Contract.TotalDebt}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Гражданин:" Grid.Row="1" Grid.Column="0" Margin="0,4"/>
-            <TextBlock Text="{Binding Contract.Person.FullName}" Grid.Row="1" Grid.Column="1" Margin="0,4"/>
-            <TextBlock Text="Квартира:" Grid.Row="1" Grid.Column="2" Margin="0,4"/>
-            <TextBlock Text="{Binding Contract.Apartment.Address}" Grid.Row="1" Grid.Column="3" Margin="0,4"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Гражданин:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Contract.Person.FullName}" Style="{StaticResource DetailValueText}"/>
+                    <TextBlock Grid.Column="2" Text="Квартира:" Style="{StaticResource DetailLabelText}" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Contract.Apartment.Address}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Период:" Grid.Row="2" Grid.Column="0" Margin="0,4"/>
-            <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,4">
-                <Run Text="{Binding Contract.StartDate, StringFormat=dd.MM.yyyy}"/>
-                <Run Text=" — "/>
-                <Run Text="{Binding Contract.EndDate, StringFormat=dd.MM.yyyy}"/>
-            </TextBlock>
-            <TextBlock Text="Долг:" Grid.Row="2" Grid.Column="2" Margin="0,4"/>
-            <TextBlock Text="{Binding Contract.TotalDebt}" Grid.Row="2" Grid.Column="3" Margin="0,4"/>
-        </Grid>
+            <Border Style="{StaticResource DetailFieldBorder}" Margin="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Период:" Style="{StaticResource DetailLabelText}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock Text="{Binding Contract.StartDate, StringFormat=dd.MM.yyyy}" Style="{StaticResource DetailValueText}"/>
+                        <TextBlock Text=" — " Style="{StaticResource DetailValueText}"/>
+                        <TextBlock Text="{Binding Contract.EndDate, StringFormat=dd.MM.yyyy}" Style="{StaticResource DetailValueText}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
 
-        <DockPanel Grid.Row="2" Margin="0,15,0,0">
+        <DockPanel Grid.Row="1" Margin="0,10,0,0">
             <TextBlock Text="История изменений" DockPanel.Dock="Top" FontWeight="SemiBold" Margin="0,0,0,8"/>
             <DataGrid Style="{StaticResource ModernDataGrid}"
                       ItemsSource="{Binding History}"

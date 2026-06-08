@@ -41,6 +41,7 @@ namespace OrphanHousingService.ViewModels.Helpers
                 _source.Add(item);
 
             ApplyDefaultSort();
+            View.Refresh();
         }
 
         public void ApplyDefaultSort()

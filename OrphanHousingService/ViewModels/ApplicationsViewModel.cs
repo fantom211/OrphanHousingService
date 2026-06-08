@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using OrphanHousingService.Models;
+using OrphanHousingService.Models.Enums;
+using ApplicationModel = OrphanHousingService.Models.Application;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.ViewModels.CrudViewModels;
 using OrphanHousingService.ViewModels.Details;
@@ -17,23 +18,27 @@ namespace OrphanHousingService.ViewModels
     public partial class ApplicationsViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly ApplicationService _applicationService;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ListCollectionManager<Application> _listManager;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ListCollectionManager<ApplicationModel> _listManager;
 
         public ICollectionView Applications => _listManager.View;
 
         [ObservableProperty]
-        private Application? selectedApplication;
+        private ApplicationModel? selectedApplication;
 
         [ObservableProperty]
         private string? searchText;
 
-        public ApplicationsViewModel(ApplicationService applicationService,
-                                    IServiceProvider serviceProvider)
+        public bool CanProcessApplication =>
+            SelectedApplication?.Status == ApplicationStatus.Pending;
+
+        public ApplicationsViewModel(
+            ApplicationService applicationService,
+            IServiceScopeFactory scopeFactory)
         {
             _applicationService = applicationService;
-            _serviceProvider = serviceProvider;
-            _listManager = new ListCollectionManager<Application>(a => new[]
+            _scopeFactory = scopeFactory;
+            _listManager = new ListCollectionManager<ApplicationModel>(a => new[]
             {
                 a.ApplicationNumber,
                 a.Contract?.ContractNumber,
@@ -41,10 +46,17 @@ namespace OrphanHousingService.ViewModels
                 a.Contract?.Apartment?.Address,
                 a.Comment
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Заявления");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
+
+        partial void OnSelectedApplicationChanged(ApplicationModel? value)
+        {
+            OnPropertyChanged(nameof(CanProcessApplication));
+            ApproveApplicationCommand.NotifyCanExecuteChanged();
+            RejectApplicationCommand.NotifyCanExecuteChanged();
+        }
 
         public async Task LoadAsync()
         {
@@ -55,7 +67,12 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddApplicationView>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddApplicationViewModel>();
+            var window = new AddApplicationView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -67,10 +84,14 @@ namespace OrphanHousingService.ViewModels
             if (SelectedApplication == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddApplicationViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddApplicationViewModel>();
             vm.InitializeForEdit(SelectedApplication);
 
-            var window = new AddApplicationView(vm);
+            var window = new AddApplicationView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -102,8 +123,47 @@ namespace OrphanHousingService.ViewModels
             if (SelectedApplication == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<ApplicationDetailsView>();
-            DetailWindowHelper.Show(window, new ApplicationDetailsViewModel(SelectedApplication));
+            DetailWindowHelper.Show(
+                new ApplicationDetailsView(),
+                new ApplicationDetailsViewModel(SelectedApplication));
+        }
+
+        [RelayCommand(CanExecute = nameof(CanProcessApplication))]
+        private async void ApproveApplication()
+        {
+            if (SelectedApplication == null)
+                return;
+
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddCommissionDecisionViewModel>();
+            await vm.InitializeForApplicationAsync(SelectedApplication, DecisionResult.Approved);
+
+            var window = new AddCommissionDecisionView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
+        }
+
+        [RelayCommand(CanExecute = nameof(CanProcessApplication))]
+        private async void RejectApplication()
+        {
+            if (SelectedApplication == null)
+                return;
+
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddCommissionDecisionViewModel>();
+            await vm.InitializeForApplicationAsync(SelectedApplication, DecisionResult.Rejected);
+
+            var window = new AddCommissionDecisionView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true)
+                await LoadAsync();
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

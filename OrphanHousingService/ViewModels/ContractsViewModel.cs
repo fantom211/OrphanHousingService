@@ -17,7 +17,7 @@ namespace OrphanHousingService.ViewModels
 {
     public partial class ContractsViewModel : ObservableObject, ISearchableListViewModel
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ContractService _contractService;
         private readonly MainViewModel _mainViewModel;
         private readonly ListCollectionManager<Contract> _listManager;
@@ -33,11 +33,11 @@ namespace OrphanHousingService.ViewModels
 
         public ContractsViewModel(
             ContractService contractService,
-            IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory,
             MainViewModel mainViewModel)
         {
             _contractService = contractService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _mainViewModel = mainViewModel;
             _listManager = new ListCollectionManager<Contract>(c => new[]
             {
@@ -45,7 +45,7 @@ namespace OrphanHousingService.ViewModels
                 c.Person?.FullName,
                 c.Apartment?.Address
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Договоры");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
@@ -72,8 +72,12 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddContractView>();
-            window.Owner = System.Windows.Application.Current.MainWindow;
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
+            var window = new AddContractView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -85,7 +89,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedContract == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddContractViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
             vm.InitializeForEdit(SelectedContract);
 
             var window = new AddContractView(vm)
@@ -123,8 +128,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedContract == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<ContractDetailsView>();
-            var vm = _serviceProvider.GetRequiredService<ContractDetailsViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var window = new ContractDetailsView();
+            var vm = scope.ServiceProvider.GetRequiredService<ContractDetailsViewModel>();
             vm.Initialize(SelectedContract);
             DetailWindowHelper.Show(window, vm);
         }
@@ -153,7 +159,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedContract == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddUtilityDebtViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddUtilityDebtViewModel>();
             vm.InitializeForContract(SelectedContract.Id);
 
             var window = new AddUtilityDebtView(vm)
@@ -171,8 +178,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedContract == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddFamilyMemberViewModel>();
-            vm.InitializeForContract(SelectedContract.Id);
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddFamilyMemberViewModel>();
+            await vm.InitializeForContractAsync(SelectedContract.Id);
 
             var window = new AddFamilyMemberView(vm)
             {

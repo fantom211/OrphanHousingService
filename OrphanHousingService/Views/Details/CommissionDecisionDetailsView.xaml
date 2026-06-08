@@ -1,56 +1,91 @@
 <Window x:Class="OrphanHousingService.Views.Details.CommissionDecisionDetailsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
         Title="Решение комиссии"
-        Height="450"
+        Height="500"
         Width="700"
+        WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
+        <StackPanel>
+            <TextBlock Text="Сведения о решении" Style="{StaticResource DetailWindowTitle}"/>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Заявка:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.Application.ApplicationNumber}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Заявка:" Grid.Row="0" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.Application.ApplicationNumber}" Grid.Row="0" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Тип решения:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.DisplayDecisionType}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Тип решения:" Grid.Row="1" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.DisplayDecisionType}" Grid.Row="1" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Номер решения:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.DecisionNumber}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Номер решения:" Grid.Row="2" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.DecisionNumber}" Grid.Row="2" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Дата решения:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.DecisionDate, StringFormat=dd.MM.yyyy}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Дата решения:" Grid.Row="3" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.DecisionDate, StringFormat=dd.MM.yyyy}" Grid.Row="3" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Результат:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.DisplayResult}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Результат:" Grid.Row="4" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.DisplayResult}" Grid.Row="4" Grid.Column="1" Margin="0,5"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Причина:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.Reason}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Text="Причина:" Grid.Row="5" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.Reason}" Grid.Row="5" Grid.Column="1" Margin="0,5" TextWrapping="Wrap"/>
-
-        <TextBlock Text="Комментарий:" Grid.Row="6" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.Comment}" Grid.Row="6" Grid.Column="1" Margin="0,5" TextWrapping="Wrap"/>
-
-        <TextBlock Text="Идентификатор:" Grid.Row="7" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.Id}" Grid.Row="7" Grid.Column="1" Margin="0,5"/>
-
-        <TextBlock Text="Заявка (Id):" Grid.Row="8" Grid.Column="0" Margin="0,5"/>
-        <TextBlock Text="{Binding Decision.ApplicationId}" Grid.Row="8" Grid.Column="1" Margin="0,5"/>
-    </Grid>
+            <Border Style="{StaticResource DetailFieldBorder}" Margin="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Комментарий:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Decision.Comment}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Window>

@@ -198,4 +198,28 @@
   <data name="UtilityDebtStatus_Unpaid" xml:space="preserve">
     <value>Unpaid</value>
   </data>
+  <data name="RelationshipType_Parent" xml:space="preserve">
+    <value>Parent</value>
+  </data>
+  <data name="RelationshipType_Child" xml:space="preserve">
+    <value>Child</value>
+  </data>
+  <data name="RelationshipType_Guardian" xml:space="preserve">
+    <value>Guardian</value>
+  </data>
+  <data name="RelationshipType_Sibling" xml:space="preserve">
+    <value>Sibling</value>
+  </data>
+  <data name="RelationshipType_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ContractCounterpartyType_Citizen" xml:space="preserve">
+    <value>Citizen</value>
+  </data>
+  <data name="ContractCounterpartyType_SpecialHousingFund" xml:space="preserve">
+    <value>SpecialHousingFund</value>
+  </data>
+  <data name="ContractCounterpartyType_SocialRent" xml:space="preserve">
+    <value>SocialRent</value>
+  </data>
 </root>

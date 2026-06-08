@@ -1,116 +1,122 @@
 ﻿<Window x:Class="OrphanHousingService.Views.CrudViews.AddCommissionDecisionView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        Title="AddCommissionDecisionView"
-        Height="550"
-        Width="800">
+        Title="{Binding WindowTitle}"
+        Height="600"
+        Width="640"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
+        <StackPanel>
+            <TextBlock Text="{Binding WindowTitle}" Style="{StaticResource DetailWindowTitle}"/>
 
-    <Grid Margin="15">
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Заявка:" Style="{StaticResource DetailLabelText}"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding Applications}"
+                              SelectedItem="{Binding SelectedApplication}"
+                              IsEnabled="{Binding IsApplicationEditable}"
+                              IsEditable="True"
+                              IsTextSearchEnabled="True"
+                              DisplayMemberPath="ApplicationNumber"/>
+                </Grid>
+            </Border>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Тип решения:" Style="{StaticResource DetailLabelText}"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding DecisionTypes}"
+                              SelectedValue="{Binding CurrentDecisionType}"
+                              SelectedValuePath="Value"
+                              DisplayMemberPath="Display"
+                              IsEnabled="{Binding IsDecisionTypeEditable}"/>
+                </Grid>
+            </Border>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Номер решения:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding DecisionNumber, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Оставьте пустым для автогенерации"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Grid.Row="0"
-                   Text="Заявка:"
-                   VerticalAlignment="Center"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Дата решения:" Style="{StaticResource DetailLabelText}"/>
+                    <DatePicker Grid.Column="1" SelectedDate="{Binding DecisionDate}"/>
+                </Grid>
+            </Border>
 
-        <ComboBox Grid.Row="0"
-          Grid.Column="1"
-          ItemsSource="{Binding Applications}"
-          SelectedItem="{Binding SelectedApplication}"
-          IsEditable="True"
-          IsTextSearchEnabled="True"
-          DisplayMemberPath="ApplicationNumber"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Результат:" Style="{StaticResource DetailLabelText}"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding Results}"
+                              SelectedValue="{Binding CurrentResult}"
+                              SelectedValuePath="Value"
+                              DisplayMemberPath="Display"
+                              IsEnabled="{Binding IsResultEditable}"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Grid.Row="1"
-                   Text="Тип решения:"
-                   VerticalAlignment="Center"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Причина:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             MinHeight="50"/>
+                </Grid>
+            </Border>
 
-        <ComboBox Grid.Row="1"
-                  Grid.Column="1"
-                  ItemsSource="{Binding DecisionTypes}"
-                  SelectedValue="{Binding CurrentDecisionType}"
-                  SelectedValuePath="Value"
-                  DisplayMemberPath="Display"/>
+            <Border Style="{StaticResource DetailFieldBorder}" Margin="0,0,0,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Комментарий:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             MinHeight="50"/>
+                </Grid>
+            </Border>
 
-        <TextBlock Grid.Row="2"
-                   Text="Номер решения:"
-                   VerticalAlignment="Center"/>
-
-        <TextBox Grid.Row="2"
-                  Grid.Column="1"
-                  Text="{Binding DecisionNumber}"/>
-
-        <TextBlock Grid.Row="3"
-                   Text="Дата решения:"
-                   VerticalAlignment="Center"/>
-
-        <DatePicker Grid.Row="3"
-                    Grid.Column="1"
-                    Margin="5"
-                    SelectedDate="{Binding DecisionDate}" />
-
-        <TextBlock Grid.Row="4"
-                   Text="Результат:"
-                   VerticalAlignment="Center"/>
-
-        <ComboBox Grid.Row="4"
-                  Grid.Column="1"
-                  ItemsSource="{Binding Results}"
-                  SelectedValue="{Binding CurrentResult}"
-                  SelectedValuePath="Value"
-                  DisplayMemberPath="Display"/>
-
-        <TextBlock Grid.Row="5"
-                   Text="Причина:"
-                   VerticalAlignment="Center"/>
-
-        <TextBox Grid.Row="5"
-                 Grid.Column="1"
-                 Margin="5"
-                 Text="{Binding Reason}" />
-
-        <TextBlock Grid.Row="6"
-                   Text="Комментарий:"
-                   VerticalAlignment="Center"/>
-
-        <TextBox Grid.Row="6"
-                 Grid.Column="1"
-                 Margin="5"
-                 Text="{Binding Comment}" />
-
-        <StackPanel Grid.Row="7"
-                    Grid.ColumnSpan="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,15,0,0">
-
-            <Button Content="Сохранить"
-                    Width="120"
-                    Margin="0,0,10,0"
-                    Command="{Binding SaveCommand}" />
-
-            <Button Content="Отмена"
-                    Width="120"
-                    Command="{Binding CancelCommand}" />
-
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Сохранить" Width="120" Margin="0,0,10,0" Command="{Binding SaveCommand}"/>
+                <Button Content="Отмена" Width="120" Command="{Binding CancelCommand}"/>
+            </StackPanel>
         </StackPanel>
-
-    </Grid>
+    </ScrollViewer>
 </Window>

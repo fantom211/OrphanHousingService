@@ -14,7 +14,9 @@ namespace OrphanHousingService.Services.Helpers
             var typeName = value.GetType().Name;
             var key = $"{typeName}_{value}";
 
-            var result = Enums.ResourceManager.GetString(key);
+            var result = Enums.ResourceManager.GetString(
+                key,
+                System.Globalization.CultureInfo.CurrentUICulture);
 
             return result ?? value.ToString();
         }

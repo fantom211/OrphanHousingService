@@ -30,7 +30,7 @@ namespace OrphanHousingService.Services.Helpers
             if(!result.IsValid)
             {
                 var errors = string.Join("\n", result.Errors.Select(e => e.ErrorMessage));
-                throw new ValidationException(errors);
+                throw new Exception(errors);
             }
         }
 

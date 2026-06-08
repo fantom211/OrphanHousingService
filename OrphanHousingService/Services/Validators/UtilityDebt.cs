@@ -1,11 +1,6 @@
 ﻿using FluentValidation;
 using OrphanHousingService.Models;
 using OrphanHousingService.Models.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.Services.Validators
 {
@@ -18,17 +13,17 @@ namespace OrphanHousingService.Services.Validators
                 .WithMessage("Договор обязателен");
 
             RuleFor(x => x.Amount)
-    .GreaterThan(0)
-    .WithMessage("Сумма задолженности должна быть больше 0");
+                .GreaterThan(0)
+                .WithMessage("Сумма задолженности должна быть больше 0");
 
             RuleFor(x => x.DebtDate)
                 .NotEmpty()
                 .WithMessage("Дата задолженности обязательна")
-                .LessThanOrEqualTo(DateTime.Today)
-                .WithMessage("Дата задолженности не может быть в будущем");
+                .MustNotBeFutureDate("Дата задолженности не может быть в будущем");
 
             RuleFor(x => x.PeriodEnd)
-            .GreaterThanOrEqualTo(x => x.PeriodStart);
+                .GreaterThanOrEqualTo(x => x.PeriodStart)
+                .WithMessage("Конец периода не может быть раньше начала");
 
             RuleFor(x => x.Reason)
                 .MaximumLength(500)
@@ -40,16 +35,16 @@ namespace OrphanHousingService.Services.Validators
                 .WithMessage("Статус обязателен");
 
             RuleFor(x => x.PaidDate)
-                .LessThanOrEqualTo(DateTime.Today)
+                .Must(d => !d.HasValue || DateValidationRules.NotInFuture(d.Value))
                 .WithMessage("Дата оплаты не может быть в будущем")
                 .When(x => x.PaidDate.HasValue);
 
             RuleFor(x => x)
-                .Must(x => BeValidPaidState(x))
-                .WithMessage("Дата оплаты должна быть указана только для оплаченных долгов");
+                .Must(BeValidPaidState)
+                .WithMessage("Для оплаченного долга укажите дату оплаты");
         }
 
-        private bool BeValidPaidState(UtilityDebt debt)
+        private static bool BeValidPaidState(UtilityDebt debt)
         {
             if (debt.Status == UtilityDebtStatus.Paid)
                 return debt.PaidDate.HasValue;

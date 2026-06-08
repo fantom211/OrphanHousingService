@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OrphanHousingService.Models;
 using OrphanHousingService.Models.Enums;
+using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Repository;
 using OrphanHousingService.Services.Helpers;
 using System;
@@ -38,13 +39,23 @@ namespace OrphanHousingService.Services.Business
                     DateTime.SpecifyKind(apartment.InclussionOrderDate.Value, DateTimeKind.Utc);
             }
 
-            await AddAsync(apartment);
+            if (apartment is IHasCreatedAt withCreatedAt && withCreatedAt.CreatedAt == default)
+                withCreatedAt.CreatedAt = DateTime.UtcNow;
 
-            await ChangeStatusAsync(
-                apartment.Id,
-                ApartmentStatus.InSpecialFund,
-                "Первичное включение в спец. жилой фонд",
-                syncApartment: false);
+            await ValidateAsync(apartment);
+
+            await _context.Apartments.AddAsync(apartment);
+            await _context.ApartmentStatusHistories.AddAsync(new ApartmentStatusHistory
+            {
+                Id = Guid.NewGuid(),
+                ApartmentId = apartment.Id,
+                Status = ApartmentStatus.InSpecialFund,
+                ChangeDate = DateTime.UtcNow,
+                Basis = "Первичное включение в спец. жилой фонд",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Apartment apartment)

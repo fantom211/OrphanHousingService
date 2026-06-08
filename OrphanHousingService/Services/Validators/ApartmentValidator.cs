@@ -33,7 +33,7 @@ namespace OrphanHousingService.Services.Validators
                 .WithMessage("Количество комнат выглядит некорректным");
 
             RuleFor(x => x.IncludedToFundDate)
-                .LessThanOrEqualTo(DateTime.Today)
+                .Must(d => !d.HasValue || DateValidationRules.NotInFuture(d.Value))
                 .When(x => x.IncludedToFundDate.HasValue)
                 .WithMessage("Дата включения в фонд не может быть в будущем");
 
@@ -42,7 +42,7 @@ namespace OrphanHousingService.Services.Validators
                 .WithMessage("Номер приказа не должен превышать 100 символов");
 
             RuleFor(x => x.InclussionOrderDate)
-                .LessThanOrEqualTo(DateTime.Today)
+                .Must(d => !d.HasValue || DateValidationRules.NotInFuture(d.Value))
                 .When(x => x.InclussionOrderDate.HasValue)
                 .WithMessage("Дата приказа не может быть в будущем");
 

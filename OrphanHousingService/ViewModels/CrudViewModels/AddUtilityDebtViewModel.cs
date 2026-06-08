@@ -136,14 +136,34 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         {
             try
             {
+                if (SelectedContract == null)
+                {
+                    ValidationDialogHelper.ShowError(new Exception("Выберите договор"));
+                    return;
+                }
+
+                if (Amount <= 0)
+                {
+                    ValidationDialogHelper.ShowError(
+                        new Exception("Сумма задолженности должна быть больше 0"));
+                    return;
+                }
+
+                if (PeriodEnd.Date < PeriodStart.Date)
+                {
+                    ValidationDialogHelper.ShowError(
+                        new Exception("Конец периода не может быть раньше начала"));
+                    return;
+                }
+
                 var debt = new UtilityDebt
                 {
                     Id = _editId ?? Guid.Empty,
-                    ContractId = SelectedContract!.Id,
+                    ContractId = SelectedContract.Id,
                     Amount = Amount,
-                    DebtDate = DebtDate,
-                    PeriodStart = PeriodStart,
-                    PeriodEnd = PeriodEnd,
+                    DebtDate = DebtDate.Date,
+                    PeriodStart = PeriodStart.Date,
+                    PeriodEnd = PeriodEnd.Date,
                     Reason = Reason,
                     Status = Status,
                     PaidDate = Status == UtilityDebtStatus.Paid ? PaidDate : null

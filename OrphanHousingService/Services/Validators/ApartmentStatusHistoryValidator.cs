@@ -20,8 +20,7 @@ namespace OrphanHousingService.Services.Validators
             RuleFor(x => x.ChangeDate)
                 .NotEmpty()
                 .WithMessage("Дата изменения статуса обязательна")
-                .LessThanOrEqualTo(DateTime.Today)
-                .WithMessage("Дата изменения статуса не может быть в будущем");
+                .MustNotBeFutureDate("Дата изменения статуса не может быть в будущем");
 
             RuleFor(x => x.Status)
                 .IsInEnum()
@@ -35,10 +34,6 @@ namespace OrphanHousingService.Services.Validators
                 .MaximumLength(500)
                 .WithMessage("Комментарий не должен превышать 500 символов");
 
-            RuleFor(x => x)
-                .Must(x =>
-                    x.Status != default(ApartmentStatus))
-                .WithMessage("Статус должен быть задан");
         }
     }
 }

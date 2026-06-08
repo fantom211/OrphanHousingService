@@ -17,7 +17,7 @@ namespace OrphanHousingService.ViewModels
     public partial class FamilyMembersViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly FamilyMemberService _familyMemberService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ListCollectionManager<FamilyMember> _listManager;
 
         public ICollectionView FamilyMembers => _listManager.View;
@@ -30,17 +30,17 @@ namespace OrphanHousingService.ViewModels
 
         public FamilyMembersViewModel(
             FamilyMemberService familyMemberService,
-            IServiceProvider serviceProvider)
+            IServiceScopeFactory scopeFactory)
         {
             _familyMemberService = familyMemberService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _listManager = new ListCollectionManager<FamilyMember>(m => new[]
             {
                 m.Contract?.ContractNumber,
                 m.Contract?.Person?.FullName,
                 m.FullName
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Состав семьи");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
@@ -54,8 +54,14 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddFamilyMemberView>();
-            window.Owner = System.Windows.Application.Current.MainWindow;
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddFamilyMemberViewModel>();
+            await vm.PrepareAsync();
+
+            var window = new AddFamilyMemberView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -67,8 +73,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedFamilyMember == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddFamilyMemberViewModel>();
-            vm.InitializeForEdit(SelectedFamilyMember);
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddFamilyMemberViewModel>();
+            await vm.InitializeForEditAsync(SelectedFamilyMember);
 
             var window = new AddFamilyMemberView(vm)
             {
@@ -105,8 +112,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedFamilyMember == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<FamilyMemberDetailsView>();
-            DetailWindowHelper.Show(window, new FamilyMemberDetailsViewModel(SelectedFamilyMember));
+            DetailWindowHelper.Show(
+                new FamilyMemberDetailsView(),
+                new FamilyMemberDetailsViewModel(SelectedFamilyMember));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

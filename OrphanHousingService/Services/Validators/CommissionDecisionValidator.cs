@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using OrphanHousingService.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrphanHousingService.Services.Validators
 {
@@ -29,8 +24,7 @@ namespace OrphanHousingService.Services.Validators
             RuleFor(x => x.DecisionDate)
                 .NotEmpty()
                 .WithMessage("Дата решения обязательна")
-                .LessThanOrEqualTo(DateTime.Today)
-                .WithMessage("Дата решения не может быть в будущем");
+                .MustNotBeFutureDate("Дата решения не может быть в будущем");
 
             RuleFor(x => x.Result)
                 .IsInEnum()
@@ -43,10 +37,6 @@ namespace OrphanHousingService.Services.Validators
             RuleFor(x => x.Comment)
                 .MaximumLength(500)
                 .WithMessage("Комментарий не должен превышать 500 символов");
-
-            RuleFor(x => x.ApplicationId)
-                .NotEmpty()
-                .WithMessage("Заявление должно быть указано");
         }
     }
 }

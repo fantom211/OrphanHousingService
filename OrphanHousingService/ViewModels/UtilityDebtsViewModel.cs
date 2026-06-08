@@ -17,7 +17,7 @@ namespace OrphanHousingService.ViewModels
     public partial class UtilityDebtsViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly UtilityDebtService _utilityDebtService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ListCollectionManager<UtilityDebt> _listManager;
 
         public ICollectionView UtilityDebts => _listManager.View;
@@ -30,10 +30,10 @@ namespace OrphanHousingService.ViewModels
 
         public UtilityDebtsViewModel(
             UtilityDebtService utilityDebtService,
-            IServiceProvider serviceProvider)
+            IServiceScopeFactory scopeFactory)
         {
             _utilityDebtService = utilityDebtService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _listManager = new ListCollectionManager<UtilityDebt>(d => new[]
             {
                 d.Contract?.ContractNumber,
@@ -41,7 +41,7 @@ namespace OrphanHousingService.ViewModels
                 d.Contract?.Apartment?.Address,
                 d.Reason
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "Долги ЖКХ");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
@@ -55,8 +55,12 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddUtilityDebtView>();
-            window.Owner = System.Windows.Application.Current.MainWindow;
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddUtilityDebtViewModel>();
+            var window = new AddUtilityDebtView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -68,7 +72,8 @@ namespace OrphanHousingService.ViewModels
             if (SelectedUtilityDebt == null)
                 return;
 
-            var vm = _serviceProvider.GetRequiredService<AddUtilityDebtViewModel>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddUtilityDebtViewModel>();
             vm.InitializeForEdit(SelectedUtilityDebt);
 
             var window = new AddUtilityDebtView(vm)
@@ -106,8 +111,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedUtilityDebt == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<UtilityDebtDetailsView>();
-            DetailWindowHelper.Show(window, new UtilityDebtDetailsViewModel(SelectedUtilityDebt));
+            DetailWindowHelper.Show(
+                new UtilityDebtDetailsView(),
+                new UtilityDebtDetailsViewModel(SelectedUtilityDebt));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;

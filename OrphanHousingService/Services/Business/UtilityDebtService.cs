@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 using OrphanHousingService.Models;
 using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Repository;
@@ -82,10 +82,10 @@ namespace OrphanHousingService.Services.Business
         {
             var contract = await _context.Contracts.FindAsync(contractId);
             if (contract == null)
-                throw new ValidationException("Договор не найден");
+                throw new Exception("Договор не найден");
 
             if (contract.Status != ContractStatus.Active)
-                throw new ValidationException("Долг можно создать только для активного договора");
+                throw new Exception("Долг можно создать только для активного договора");
         }
 
         private static void NormalizePaidDate(UtilityDebt debt)

@@ -1,71 +1,123 @@
-<Window x:Class="OrphanHousingService.Views.CrudViews.AddUtilityDebtView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding WindowTitle}"
-        Width="520"
-        Height="440"
-        ResizeMode="NoResize"
-        WindowStartupLocation="CenterOwner">
-    <Grid Margin="15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Договор:"/>
-        <ComboBox Grid.Row="0" Grid.Column="1"
-                  ItemsSource="{Binding Contracts}"
-                  SelectedItem="{Binding SelectedContract}"
-                  IsEnabled="{Binding IsContractEditable}"
-                  IsEditable="True"
-                  IsTextSearchEnabled="True"
-                  DisplayMemberPath="ContractNumber"/>
-
-        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Сумма:"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"/>
-
-        <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Text="Дата задолженности:"/>
-        <DatePicker Grid.Row="2" Grid.Column="1" SelectedDate="{Binding DebtDate}"/>
-
-        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="Начало периода:"/>
-        <DatePicker Grid.Row="3" Grid.Column="1" SelectedDate="{Binding PeriodStart}"/>
-
-        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Text="Конец периода:"/>
-        <DatePicker Grid.Row="4" Grid.Column="1" SelectedDate="{Binding PeriodEnd}"/>
-
-        <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Text="Причина:"/>
-        <TextBox Grid.Row="5" Grid.Column="1"
-                 Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}"
-                 ToolTip="Необязательно"/>
-
-        <TextBlock Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" Text="Статус:"/>
-        <ComboBox Grid.Row="6" Grid.Column="1"
-                  ItemsSource="{Binding Statuses}"
-                  SelectedValue="{Binding Status}"
-                  SelectedValuePath="Value"
-                  DisplayMemberPath="Display"/>
-
-        <TextBlock Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" Text="Дата оплаты:"/>
-        <DatePicker Grid.Row="7" Grid.Column="1"
-                    SelectedDate="{Binding PaidDate}"
-                    IsEnabled="{Binding IsPaidDateEnabled}"
-                    ToolTip="Только для статуса «Оплачено»"/>
-
-        <StackPanel Grid.Row="8" Grid.ColumnSpan="2" Orientation="Horizontal"
-                    HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button Content="Сохранить" Width="120" Margin="0,0,10,0" Command="{Binding SaveCommand}" />
-            <Button Content="Отмена" Width="120" Command="{Binding CancelCommand}" />
-        </StackPanel>
-    </Grid>
-</Window>
+<Window x:Class="OrphanHousingService.Views.CrudViews.AddUtilityDebtView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding WindowTitle}"
+        Width="640"
+        Height="560"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
+        <StackPanel>
+            <TextBlock Text="{Binding WindowTitle}" Style="{StaticResource DetailWindowTitle}"/>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Договор:" Style="{StaticResource DetailLabelText}"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding Contracts}"
+                              SelectedItem="{Binding SelectedContract}"
+                              IsEnabled="{Binding IsContractEditable}"
+                              IsEditable="True"
+                              IsTextSearchEnabled="True"
+                              DisplayMemberPath="ContractNumber"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Сумма:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBox Grid.Column="1" Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Дата задолженности:" Style="{StaticResource DetailLabelText}"/>
+                    <DatePicker Grid.Column="1" SelectedDate="{Binding DebtDate}"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Начало периода:" Style="{StaticResource DetailLabelText}"/>
+                    <DatePicker Grid.Column="1" SelectedDate="{Binding PeriodStart}"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Конец периода:" Style="{StaticResource DetailLabelText}"/>
+                    <DatePicker Grid.Column="1" SelectedDate="{Binding PeriodEnd}"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Причина:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Необязательно"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Статус:" Style="{StaticResource DetailLabelText}"/>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding Statuses}"
+                              SelectedValue="{Binding Status}"
+                              SelectedValuePath="Value"
+                              DisplayMemberPath="Display"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource DetailFieldBorder}" Margin="0,0,0,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Дата оплаты:" Style="{StaticResource DetailLabelText}"/>
+                    <DatePicker Grid.Column="1"
+                                SelectedDate="{Binding PaidDate}"
+                                IsEnabled="{Binding IsPaidDateEnabled}"
+                                ToolTip="Только для статуса «Оплачено»"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Сохранить" Width="120" Margin="0,0,10,0" Command="{Binding SaveCommand}"/>
+                <Button Content="Отмена" Width="120" Command="{Binding CancelCommand}"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Window>
+

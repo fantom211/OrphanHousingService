@@ -4,44 +4,75 @@
         Title="Квартира"
         Height="580"
         Width="900"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize">
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Сведения о квартире" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Сведения о квартире" Style="{StaticResource DetailWindowTitle}"/>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="220"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Адрес:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Apartment.Address}" Style="{StaticResource DetailValueText}"/>
+                    <TextBlock Grid.Column="2" Text="Статус:" Style="{StaticResource DetailLabelText}" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Apartment.StatusDisplay}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Адрес:" Grid.Row="0" Grid.Column="0" Margin="0,4"/>
-            <TextBlock Text="{Binding Apartment.Address}" Grid.Row="0" Grid.Column="1" Margin="0,4"/>
-            <TextBlock Text="Статус:" Grid.Row="0" Grid.Column="2" Margin="0,4"/>
-            <TextBlock Text="{Binding Apartment.StatusDisplay}" Grid.Row="0" Grid.Column="3" Margin="0,4"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Площадь:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Apartment.Area}" Style="{StaticResource DetailValueText}"/>
+                    <TextBlock Grid.Column="2" Text="Комнат:" Style="{StaticResource DetailLabelText}" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Apartment.RoomsCount}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Площадь:" Grid.Row="1" Grid.Column="0" Margin="0,4"/>
-            <TextBlock Text="{Binding Apartment.Area}" Grid.Row="1" Grid.Column="1" Margin="0,4"/>
-            <TextBlock Text="Комнат:" Grid.Row="1" Grid.Column="2" Margin="0,4"/>
-            <TextBlock Text="{Binding Apartment.RoomsCount}" Grid.Row="1" Grid.Column="3" Margin="0,4"/>
+            <Border Style="{StaticResource DetailFieldBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Кадастровый №:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Apartment.CadastralNumber}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
 
-            <TextBlock Text="Кадастровый №:" Grid.Row="2" Grid.Column="0" Margin="0,4"/>
-            <TextBlock Text="{Binding Apartment.CadastralNumber}" Grid.Row="2" Grid.Column="1" Margin="0,4"/>
-        </Grid>
+            <Border Style="{StaticResource DetailFieldBorder}" Margin="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Дата включения:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Apartment.IncludedToFundDate, StringFormat=dd.MM.yyyy}" Style="{StaticResource DetailValueText}"/>
+                    <TextBlock Grid.Column="2" Text="Приказ №:" Style="{StaticResource DetailLabelText}" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Column="3" Text="{Binding Apartment.InclussionOrderNumber}" Style="{StaticResource DetailValueText}"/>
+                </Grid>
+            </Border>
+        </StackPanel>
 
-        <DockPanel Grid.Row="2" Margin="0,15,0,0">
+        <DockPanel Grid.Row="1" Margin="0,10,0,0">
             <TextBlock Text="История статусов" DockPanel.Dock="Top" FontWeight="SemiBold" Margin="0,0,0,8"/>
             <DataGrid Style="{StaticResource ModernDataGrid}"
                       ItemsSource="{Binding History}"

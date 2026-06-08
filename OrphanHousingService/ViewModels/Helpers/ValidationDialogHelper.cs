@@ -1,5 +1,6 @@
 using FluentValidation;
 using System;
+using System.Linq;
 using System.Windows;
 
 namespace OrphanHousingService.ViewModels.Helpers
@@ -10,8 +11,10 @@ namespace OrphanHousingService.ViewModels.Helpers
         {
             var message = ex switch
             {
+                ValidationException validationEx when validationEx.Errors?.Any() == true =>
+                    string.Join("\n", validationEx.Errors.Select(e => e.ErrorMessage)),
                 ValidationException validationEx => validationEx.Message,
-                _ => ex.Message
+                _ => ex.InnerException?.Message ?? ex.Message
             };
 
             MessageBox.Show(

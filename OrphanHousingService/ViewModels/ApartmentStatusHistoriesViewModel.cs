@@ -15,7 +15,7 @@ namespace OrphanHousingService.ViewModels
     public partial class ApartmentStatusHistoriesViewModel : ObservableObject, ISearchableListViewModel
     {
         private readonly ApartmentStatusHistoryService _historyService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ListCollectionManager<ApartmentStatusHistory> _listManager;
 
         public ICollectionView Histories => _listManager.View;
@@ -28,17 +28,17 @@ namespace OrphanHousingService.ViewModels
 
         public ApartmentStatusHistoriesViewModel(
             ApartmentStatusHistoryService historyService,
-            IServiceProvider serviceProvider)
+            IServiceScopeFactory scopeFactory)
         {
             _historyService = historyService;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _listManager = new ListCollectionManager<ApartmentStatusHistory>(h => new[]
             {
                 h.Apartment?.Address,
                 h.Basis,
                 h.Comment
             });
-            _ = LoadAsync();
+            _ = ViewModelLoadHelper.RunSafeAsync(LoadAsync, "История квартир");
         }
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
@@ -52,7 +52,12 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private async void Add()
         {
-            var window = _serviceProvider.GetRequiredService<AddApartmentStatusHistoryView>();
+            using var scope = _scopeFactory.CreateScope();
+            var vm = scope.ServiceProvider.GetRequiredService<AddApartmentStatusHistoryViewModel>();
+            var window = new AddApartmentStatusHistoryView(vm)
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
 
             if (window.ShowDialog() == true)
                 await LoadAsync();
@@ -78,8 +83,9 @@ namespace OrphanHousingService.ViewModels
             if (SelectedHistory == null)
                 return;
 
-            var window = _serviceProvider.GetRequiredService<ApartmentStatusHistoryDetailsView>();
-            DetailWindowHelper.Show(window, new ApartmentStatusHistoryDetailsViewModel(SelectedHistory));
+            DetailWindowHelper.Show(
+                new ApartmentStatusHistoryDetailsView(),
+                new ApartmentStatusHistoryDetailsViewModel(SelectedHistory));
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;
