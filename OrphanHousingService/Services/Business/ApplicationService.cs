@@ -19,6 +19,7 @@ namespace OrphanHousingService.Services.Business
         public async Task<List<Application>> GetAllAsync()
         {
             return await _context.Applications
+                .AsNoTracking()
                 .Include(x => x.Contract)
                     .ThenInclude(c => c.Person)
                 .Include(x => x.Contract)

@@ -8,13 +8,14 @@
 
         Width="640"
 
-        Height="620"
+        Height="720"
 
         ResizeMode="NoResize"
 
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource DialogWindow}">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20" Padding="4">
 
         <StackPanel>
 
@@ -348,7 +349,7 @@
 
                 <Button Content="Сохранить" Width="120" Margin="0,0,10,0" Command="{Binding SaveCommand}"/>
 
-                <Button Content="Отмена" Width="120" Command="{Binding CancelCommand}"/>
+                <Button Content="Отмена" Width="120" Style="{StaticResource SecondaryButton}" Command="{Binding CancelCommand}"/>
 
             </StackPanel>
 

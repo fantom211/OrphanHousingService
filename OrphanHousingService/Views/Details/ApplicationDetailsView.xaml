@@ -5,7 +5,8 @@
         Height="450"
         Width="700"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        Style="{StaticResource DialogWindow}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
         <StackPanel>
             <TextBlock Text="Сведения о заявлении" Style="{StaticResource DetailWindowTitle}"/>

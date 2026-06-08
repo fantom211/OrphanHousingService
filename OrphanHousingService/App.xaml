@@ -3,192 +3,52 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:OrphanHousingService"
              xmlns:vm="clr-namespace:OrphanHousingService.ViewModels"
-             xmlns:views="clr-namespace:OrphanHousingService.Views"
-            >
+             xmlns:views="clr-namespace:OrphanHousingService.Views">
     
     <Application.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Theme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
-        <DataTemplate DataType="{x:Type vm:ApartmentsViewModel}">
-            <views:ApartmentsView/>
-        </DataTemplate>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-        <DataTemplate DataType="{x:Type vm:ContractsViewModel}">
-            <views:ContractsView/>
-        </DataTemplate>
+            <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}"/>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource ModernComboBox}"/>
+            <Style TargetType="DatePicker" BasedOn="{StaticResource ModernDatePicker}"/>
+            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"/>
 
-        <DataTemplate DataType="{x:Type vm:PeopleViewModel}">
-            <views:PeopleView/>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ApartmentsViewModel}">
+                <views:ApartmentsView/>
+            </DataTemplate>
 
-        <DataTemplate DataType="{x:Type vm:ApartmentStatusHistoriesViewModel}">
-            <views:ApartmentStatusHistoriesView/>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ContractsViewModel}">
+                <views:ContractsView/>
+            </DataTemplate>
 
-        <DataTemplate DataType="{x:Type vm:ApplicationsViewModel}">
-            <views:ApplicationsView/>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PeopleViewModel}">
+                <views:PeopleView/>
+            </DataTemplate>
 
-        <DataTemplate DataType="{x:Type vm:CommissionDecisionsViewModel}">
-            <views:CommissionDecisionsView/>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ApartmentStatusHistoriesViewModel}">
+                <views:ApartmentStatusHistoriesView/>
+            </DataTemplate>
 
-        <DataTemplate DataType="{x:Type vm:UtilityDebtsViewModel}">
-            <views:UtilityDebtsView/>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ApplicationsViewModel}">
+                <views:ApplicationsView/>
+            </DataTemplate>
 
-        <DataTemplate DataType="{x:Type vm:FamilyMembersViewModel}">
-            <views:FamilyMembersView/>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CommissionDecisionsViewModel}">
+                <views:CommissionDecisionsView/>
+            </DataTemplate>
 
-        <Style x:Key="SidebarButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="5,3"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <DataTemplate DataType="{x:Type vm:UtilityDebtsViewModel}">
+                <views:UtilityDebtsView/>
+            </DataTemplate>
 
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                        CornerRadius="6">
-                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1F2937"/>
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#374151"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ToolbarButton" TargetType="Button">
-            <Setter Property="Background" Value="#2563EB"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                        CornerRadius="6"
-                        Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1D4ED8"/>
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#1E40AF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Основной DataGrid -->
-        <Style x:Key="ModernDataGrid" TargetType="DataGrid">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#D1D5DB"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="GridLinesVisibility" Value="None"/>
-            <Setter Property="RowBackground" Value="White"/>
-            <Setter Property="AlternatingRowBackground" Value="#F9FAFB"/>
-            <Setter Property="CanUserAddRows" Value="False"/>
-            <Setter Property="CanUserDeleteRows" Value="False"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-        </Style>
-
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F3F4F6"/>
-            <Setter Property="Foreground" Value="#111827"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-        </Style>
-
-        <Style TargetType="DataGridRow">
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="MinHeight" Value="32"/>
-
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F1F5F9"/>
-                </Trigger>
-
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#E5E7EB"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style TargetType="DataGridCell">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DataGridCell">
-
-                        <Border x:Name="CellBorder"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="#D1D5DB"
-                        BorderThickness="0,0,1,1"
-                        SnapsToDevicePixels="True">
-
-                            <ContentPresenter Margin="8,4"
-                                      VerticalAlignment="Center"/>
-
-                        </Border>
-
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="DetailFieldBorder" TargetType="Border">
-            <Setter Property="BorderBrush" Value="#D0D0D0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style x:Key="DetailLabelText" TargetType="TextBlock">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-        </Style>
-
-        <Style x:Key="DetailValueText" TargetType="TextBlock">
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-        </Style>
-
-        <Style x:Key="DetailWindowTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,12"/>
-        </Style>
-
+            <DataTemplate DataType="{x:Type vm:FamilyMembersViewModel}">
+                <views:FamilyMembersView/>
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

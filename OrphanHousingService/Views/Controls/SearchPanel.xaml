@@ -1,35 +1,52 @@
 <UserControl x:Class="OrphanHousingService.Views.Controls.SearchPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
->
-    <DockPanel Margin="0,0,0,8">
-        <TextBlock Text="Поиск:"
-                   DockPanel.Dock="Left"
-                   VerticalAlignment="Center"
-                   Margin="0,0,8,0"/>
-        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                 Width="360"
-                 HorizontalAlignment="Left"
-                 Padding="6,4"
-                 ToolTip="Поиск по номеру договора, квартире, человеку">
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <Trigger Property="Text" Value="">
-                            <Setter Property="Background">
-                                <Setter.Value>
-                                    <VisualBrush AlignmentX="Left" AlignmentY="Center" Stretch="None">
-                                        <VisualBrush.Visual>
-                                            <TextBlock Foreground="Gray" Margin="6,0"
-                                                       Text="Договор, квартира, человек..."/>
-                                        </VisualBrush.Visual>
-                                    </VisualBrush>
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-    </DockPanel>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border Background="#F8FAFC"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="12,10"
+            Margin="0,0,0,12">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Поиск"
+                       VerticalAlignment="Center"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,12,0"/>
+
+            <TextBox Grid.Column="1"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     MinWidth="520"
+                     MaxWidth="720"
+                     HorizontalAlignment="Stretch"
+                     ToolTip="Поиск по номеру, ФИО, адресу и другим полям">
+                <TextBox.Style>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
+                        <Style.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <VisualBrush AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                            <VisualBrush.Visual>
+                                                <TextBlock Foreground="{StaticResource TextMutedBrush}"
+                                                           Margin="12,0"
+                                                           FontSize="13"
+                                                           Text="Введите запрос для поиска..."/>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+        </Grid>
+    </Border>
 </UserControl>

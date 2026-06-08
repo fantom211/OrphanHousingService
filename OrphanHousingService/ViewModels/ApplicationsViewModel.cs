@@ -51,17 +51,26 @@ namespace OrphanHousingService.ViewModels
 
         partial void OnSearchTextChanged(string? value) => _listManager.SearchText = value;
 
-        partial void OnSelectedApplicationChanged(ApplicationModel? value)
+        partial void OnSelectedApplicationChanged(ApplicationModel? value) =>
+            RefreshProcessCommands();
+
+        public async Task LoadAsync()
+        {
+            var selectedId = SelectedApplication?.Id;
+            var items = await _applicationService.GetAllAsync();
+            _listManager.SetItems(items);
+
+            if (selectedId.HasValue)
+                SelectedApplication = Applications.Cast<ApplicationModel>().FirstOrDefault(a => a.Id == selectedId.Value);
+
+            RefreshProcessCommands();
+        }
+
+        private void RefreshProcessCommands()
         {
             OnPropertyChanged(nameof(CanProcessApplication));
             ApproveApplicationCommand.NotifyCanExecuteChanged();
             RejectApplicationCommand.NotifyCanExecuteChanged();
-        }
-
-        public async Task LoadAsync()
-        {
-            var items = await _applicationService.GetAllAsync();
-            _listManager.SetItems(items);
         }
 
         [RelayCommand]
@@ -144,7 +153,7 @@ namespace OrphanHousingService.ViewModels
             };
 
             if (window.ShowDialog() == true)
-                await LoadAsync();
+                await ReloadAfterProcessAsync();
         }
 
         [RelayCommand(CanExecute = nameof(CanProcessApplication))]
@@ -163,7 +172,13 @@ namespace OrphanHousingService.ViewModels
             };
 
             if (window.ShowDialog() == true)
-                await LoadAsync();
+                await ReloadAfterProcessAsync();
+        }
+
+        private async Task ReloadAfterProcessAsync()
+        {
+            await LoadAsync();
+            RefreshProcessCommands();
         }
 
         IRelayCommand ICrudViewModel.AddCommand => AddCommand;
