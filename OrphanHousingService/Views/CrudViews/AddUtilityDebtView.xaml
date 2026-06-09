@@ -45,8 +45,6 @@
 
                               IsEnabled="{Binding IsContractEditable}"
 
-                              IsEditable="True"
-
                               IsTextSearchEnabled="True"
 
                               DisplayMemberPath="ContractNumber"/>

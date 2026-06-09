@@ -252,13 +252,14 @@
                             MinHeight="{TemplateBinding MinHeight}">
 
                             <Grid>
-                                <TextBlock Margin="12,0,32,0"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Left"
-                                           TextTrimming="CharacterEllipsis"
-                                           Foreground="{TemplateBinding Foreground}"
-                                           FontSize="{TemplateBinding FontSize}"
-                                           Text="{Binding SelectionBoxItem, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ComboBoxSelectionDisplayConverter}}"/>
+                                <ContentPresenter Margin="12,0,32,0"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}"
+                                                  TextElement.FontSize="{TemplateBinding FontSize}"/>
 
                                 <ToggleButton Grid.Column="1"
                                           Focusable="False"
@@ -341,10 +342,10 @@
     </Style>
 
     <Style x:Key="ModernDatePicker" TargetType="DatePicker">
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderBrush" Value="#D1D5DB"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="MinHeight" Value="34"/>
         <Setter Property="CalendarStyle">
@@ -356,10 +357,44 @@
         </Setter>
     </Style>
 
-    <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource ModernTextBox}">
-        <Setter Property="MinHeight" Value="30"/>
-        <Setter Property="Padding" Value="8,4"/>
+    <Style x:Key="ModernDatePickerTextBox" TargetType="DatePickerTextBox">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DatePickerTextBox">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            SnapsToDevicePixels="True"
+                            MinHeight="{TemplateBinding MinHeight}">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderFocusBrush}"/>
+                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="#F9FAFB"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
+
+    <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource ModernDatePickerTextBox}"/>
 
     <!-- Cards & forms -->
     <Style x:Key="CardBorder" TargetType="Border">

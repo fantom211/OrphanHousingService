@@ -60,8 +60,7 @@ namespace OrphanHousingService.ViewModels
             var items = await _applicationService.GetAllAsync();
             _listManager.SetItems(items);
 
-            if (selectedId.HasValue)
-                SelectedApplication = Applications.Cast<ApplicationModel>().FirstOrDefault(a => a.Id == selectedId.Value);
+            SelectedApplication = _listManager.RestoreSelection(selectedId, a => a.Id);
 
             RefreshProcessCommands();
         }
@@ -78,6 +77,7 @@ namespace OrphanHousingService.ViewModels
         {
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddApplicationViewModel>();
+            await vm.PrepareAsync();
             var window = new AddApplicationView(vm)
             {
                 Owner = System.Windows.Application.Current.MainWindow
@@ -95,7 +95,7 @@ namespace OrphanHousingService.ViewModels
 
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddApplicationViewModel>();
-            vm.InitializeForEdit(SelectedApplication);
+            await vm.InitializeForEditAsync(SelectedApplication);
 
             var window = new AddApplicationView(vm)
             {

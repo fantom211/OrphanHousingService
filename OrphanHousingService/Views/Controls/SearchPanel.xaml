@@ -5,12 +5,14 @@
             BorderBrush="{StaticResource BorderBrush}"
             BorderThickness="1"
             CornerRadius="10"
-            Padding="12,10"
-            Margin="0,0,0,12">
+            Padding="10,8"
+            Margin="0,0,0,10"
+            HorizontalAlignment="Left"
+            MaxWidth="480">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Поиск"
@@ -18,13 +20,11 @@
                        FontSize="13"
                        FontWeight="SemiBold"
                        Foreground="{StaticResource TextSecondaryBrush}"
-                       Margin="0,0,12,0"/>
+                       Margin="0,0,10,0"/>
 
             <TextBox Grid.Column="1"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     MinWidth="520"
-                     MaxWidth="720"
-                     HorizontalAlignment="Stretch"
+                     Width="340"
                      ToolTip="Поиск по номеру, ФИО, адресу и другим полям">
                 <TextBox.Style>
                     <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
@@ -37,7 +37,7 @@
                                                 <TextBlock Foreground="{StaticResource TextMutedBrush}"
                                                            Margin="12,0"
                                                            FontSize="13"
-                                                           Text="Введите запрос для поиска..."/>
+                                                           Text="Введите запрос..."/>
                                             </VisualBrush.Visual>
                                         </VisualBrush>
                                     </Setter.Value>

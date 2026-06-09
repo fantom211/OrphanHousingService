@@ -50,8 +50,10 @@ namespace OrphanHousingService.ViewModels
 
         public async Task LoadAsync()
         {
+            var selectedId = SelectedCommissionDecision?.Id;
             var items = await _decisionService.GetAllAsync();
             _listManager.SetItems(items);
+            SelectedCommissionDecision = _listManager.RestoreSelection(selectedId, d => d.Id);
         }
 
         [RelayCommand]

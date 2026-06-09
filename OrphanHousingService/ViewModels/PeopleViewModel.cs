@@ -48,8 +48,11 @@ namespace OrphanHousingService.ViewModels
 
         public async Task LoadAsync()
         {
+            var selectedId = SelectedPerson?.Id;
             var people = await _personService.GetCitizensAsync();
             _listManager.SetItems(people);
+
+            SelectedPerson = _listManager.RestoreSelection(selectedId, p => p.Id);
 
             if (_pendingSelectionId.HasValue)
             {
@@ -135,7 +138,7 @@ namespace OrphanHousingService.ViewModels
 
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
-            vm.InitializeForPerson(SelectedPerson.Id);
+            await vm.InitializeForPersonAsync(SelectedPerson.Id);
 
             var window = new AddContractView(vm)
             {

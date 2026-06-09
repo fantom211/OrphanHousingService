@@ -47,8 +47,10 @@ namespace OrphanHousingService.ViewModels
 
         public async Task LoadAsync()
         {
+            var selectedId = SelectedFamilyMember?.Id;
             var items = await _familyMemberService.GetAllAsync();
             _listManager.SetItems(items);
+            SelectedFamilyMember = _listManager.RestoreSelection(selectedId, m => m.Id);
         }
 
         [RelayCommand]

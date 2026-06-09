@@ -48,8 +48,10 @@ namespace OrphanHousingService.ViewModels
 
         public async Task LoadAsync()
         {
+            var selectedId = SelectedUtilityDebt?.Id;
             var items = await _utilityDebtService.GetAllAsync();
             _listManager.SetItems(items);
+            SelectedUtilityDebt = _listManager.RestoreSelection(selectedId, d => d.Id);
         }
 
         [RelayCommand]
@@ -57,6 +59,7 @@ namespace OrphanHousingService.ViewModels
         {
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddUtilityDebtViewModel>();
+            await vm.PrepareAsync();
             var window = new AddUtilityDebtView(vm)
             {
                 Owner = System.Windows.Application.Current.MainWindow
@@ -74,7 +77,7 @@ namespace OrphanHousingService.ViewModels
 
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddUtilityDebtViewModel>();
-            vm.InitializeForEdit(SelectedUtilityDebt);
+            await vm.InitializeForEditAsync(SelectedUtilityDebt);
 
             var window = new AddUtilityDebtView(vm)
             {

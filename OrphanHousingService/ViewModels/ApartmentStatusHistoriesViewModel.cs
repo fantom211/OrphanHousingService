@@ -45,8 +45,10 @@ namespace OrphanHousingService.ViewModels
 
         public async Task LoadAsync()
         {
+            var selectedId = SelectedHistory?.Id;
             var histories = await _historyService.GetAllAsync();
             _listManager.SetItems(histories);
+            SelectedHistory = _listManager.RestoreSelection(selectedId, h => h.Id);
         }
 
         [RelayCommand]
@@ -54,6 +56,7 @@ namespace OrphanHousingService.ViewModels
         {
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddApartmentStatusHistoryViewModel>();
+            await vm.PrepareAsync();
             var window = new AddApartmentStatusHistoryView(vm)
             {
                 Owner = System.Windows.Application.Current.MainWindow

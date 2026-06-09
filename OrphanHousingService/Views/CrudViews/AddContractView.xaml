@@ -79,8 +79,6 @@
 
                               IsEnabled="{Binding IsPersonEditable}"
 
-                              IsEditable="True"
-
                               IsTextSearchEnabled="True"
 
                               DisplayMemberPath="FullName"/>
@@ -143,8 +141,6 @@
 
                               IsEnabled="{Binding IsApartmentEditable}"
 
-                              IsEditable="True"
-
                               IsTextSearchEnabled="True"
 
                               DisplayMemberPath="Address"/>
@@ -200,47 +196,28 @@
                     <TextBlock Text="Номер договора:" Style="{StaticResource DetailLabelText}"/>
 
                     <TextBox Grid.Column="1"
-
                              Text="{Binding ContractNumber, UpdateSourceTrigger=PropertyChanged}"
-
                              ToolTip="Оставьте пустым для автогенерации">
-
                         <TextBox.Style>
-
-                            <Style TargetType="TextBox">
-
+                            <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
                                 <Style.Triggers>
-
                                     <Trigger Property="Text" Value="">
-
                                         <Setter Property="Background">
-
                                             <Setter.Value>
-
                                                 <VisualBrush AlignmentX="Left" AlignmentY="Center" Stretch="None">
-
                                                     <VisualBrush.Visual>
-
-                                                        <TextBlock Foreground="Gray" Margin="4,0"
-
+                                                        <TextBlock Foreground="{StaticResource TextMutedBrush}"
+                                                                   Margin="12,0"
+                                                                   FontSize="13"
                                                                    Text="{Binding SuggestedContractNumber, StringFormat=Авто: {0}}"/>
-
                                                     </VisualBrush.Visual>
-
                                                 </VisualBrush>
-
                                             </Setter.Value>
-
                                         </Setter>
-
                                     </Trigger>
-
                                 </Style.Triggers>
-
                             </Style>
-
                         </TextBox.Style>
-
                     </TextBox>
 
                 </Grid>

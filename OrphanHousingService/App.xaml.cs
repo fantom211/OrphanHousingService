@@ -126,6 +126,7 @@ namespace OrphanHousingService
             services.AddTransient<FamilyMembersView>();
             services.AddTransient<AddUtilityDebtView>();
             services.AddTransient<AddFamilyMemberView>();
+            services.AddTransient<ReportsView>();
 
             //ViewModels
             services.AddSingleton<MainViewModel>();
@@ -154,6 +155,7 @@ namespace OrphanHousingService
             services.AddScoped<FamilyMembersViewModel>();
             services.AddScoped<AddUtilityDebtViewModel>();
             services.AddScoped<AddFamilyMemberViewModel>();
+            services.AddScoped<ReportsViewModel>();
 
             //Сервисы
             services.AddScoped<ContractService>();
@@ -167,6 +169,8 @@ namespace OrphanHousingService
             services.AddScoped<ContractWorkFlowService>();
             services.AddScoped<ContractHistoryService>();
             services.AddScoped<SystemEntityService>();
+            services.AddScoped<ReportService>();
+            services.AddScoped<WordReportExportService>();
             services.AddScoped(typeof(CrudService<>));
             services.AddScoped<IValidator<Contract>, ContractValidator>();
             services.AddScoped<IValidator<Apartment>, ApartmentValidator>();

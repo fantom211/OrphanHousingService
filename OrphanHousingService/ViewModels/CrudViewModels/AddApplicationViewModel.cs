@@ -6,7 +6,6 @@ using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
 using OrphanHousingService.ViewModels.Helpers;
-using System;
 using System.Collections.ObjectModel;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
@@ -51,43 +50,42 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
 
         public bool IsEditMode => _editId.HasValue;
         public bool IsContractEditable => !IsEditMode;
-
         public Action<bool>? CloseAction { get; set; }
 
-        public AddApplicationViewModel(ApplicationService applicationService, ContractService contractService)
+        public AddApplicationViewModel(
+            ApplicationService applicationService,
+            ContractService contractService)
         {
             _contractService = contractService;
             _applicationService = applicationService;
             SuggestedApplicationNumber = _applicationService.GenerateNumber();
-            _ = LoadAsync();
         }
 
-        public void InitializeForEdit(Application application)
+        public async Task PrepareAsync()
+        {
+            await LoadContractsAsync();
+        }
+
+        public async Task InitializeForEditAsync(Application application)
         {
             _editId = application.Id;
             WindowTitle = "Редактировать заявление";
             ApplicationNumber = application.ApplicationNumber;
             ApplicationDate = application.ApplicationDate;
+            CurrentApplicationType = application.ApplicationType;
+            CurrentStatus = application.Status;
             Comment = application.Comment;
             OnPropertyChanged(nameof(IsContractEditable));
-            _ = ApplyContractAsync(application.ContractId);
+            await LoadContractsAsync();
+            SelectedContract = EntityComboHelper.FindById(Contracts, application.ContractId);
         }
 
-        private async Task ApplyContractAsync(Guid contractId)
-        {
-            if (Contracts.Count == 0)
-                await LoadAsync();
-
-            SelectedContract = Contracts.FirstOrDefault(c => c.Id == contractId);
-        }
-
-        private async Task LoadAsync()
+        private async Task LoadContractsAsync()
         {
             var contracts = await _contractService.GetAllAsync();
-
             Contracts.Clear();
-            foreach (var c in contracts)
-                Contracts.Add(c);
+            foreach (var contract in contracts)
+                Contracts.Add(contract);
         }
 
         [RelayCommand]
@@ -97,7 +95,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             {
                 if (IsEditMode)
                 {
-                    var entity = new Application
+                    await _applicationService.UpdateAsync(new Application
                     {
                         Id = _editId!.Value,
                         ApplicationNumber = string.IsNullOrWhiteSpace(ApplicationNumber)
@@ -105,13 +103,11 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
                             : ApplicationNumber,
                         ApplicationDate = ApplicationDate,
                         Comment = Comment
-                    };
-
-                    await _applicationService.UpdateAsync(entity);
+                    });
                 }
                 else
                 {
-                    var entity = new Application
+                    await _applicationService.CreateAsync(new Application
                     {
                         ContractId = SelectedContract!.Id,
                         ApplicationNumber = string.IsNullOrWhiteSpace(ApplicationNumber)
@@ -121,9 +117,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
                         ApplicationDate = ApplicationDate,
                         Status = CurrentStatus,
                         Comment = Comment
-                    };
-
-                    await _applicationService.CreateAsync(entity);
+                    });
                 }
 
                 CloseAction?.Invoke(true);
@@ -135,9 +129,6 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         }
 
         [RelayCommand]
-        private void Cancel()
-        {
-            CloseAction?.Invoke(false);
-        }
+        private void Cancel() => CloseAction?.Invoke(false);
     }
 }

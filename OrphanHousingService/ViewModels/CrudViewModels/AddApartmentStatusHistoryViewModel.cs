@@ -5,14 +5,7 @@ using OrphanHousingService.Models.Enums;
 using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
 {
@@ -41,10 +34,10 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         [ObservableProperty]
         private string? comment;
 
-        public Action<bool>? CloseAction { get; set; }
-
         public IReadOnlyList<EnumItem<ApartmentStatus>> Statuses { get; } =
             EnumHelper.GetItems<ApartmentStatus>();
+
+        public Action<bool>? CloseAction { get; set; }
 
         public AddApartmentStatusHistoryViewModel(
             ApartmentStatusHistoryService historyService,
@@ -52,14 +45,12 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         {
             _historyService = historyService;
             _apartmentService = apartmentService;
-
-            _ = LoadAsync();
         }
 
-        private async Task LoadAsync()
+        public async Task PrepareAsync()
         {
             var apartments = await _apartmentService.GetAllAsync();
-
+            Apartments.Clear();
             foreach (var apartment in apartments)
                 Apartments.Add(apartment);
         }
@@ -77,25 +68,10 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             };
 
             await _historyService.CreateAsync(history);
-
             CloseAction?.Invoke(true);
         }
 
         [RelayCommand]
-        private void Cancel()
-        {
-            CloseAction?.Invoke(false);
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (sender is TextBox tb)
-            {
-                tb.Height = double.NaN; // Auto
-                tb.Measure(new Size(tb.ActualWidth, double.PositiveInfinity));
-
-                tb.Height = Math.Min(tb.DesiredSize.Height + 10, 120);
-            }
-        }
+        private void Cancel() => CloseAction?.Invoke(false);
     }
 }

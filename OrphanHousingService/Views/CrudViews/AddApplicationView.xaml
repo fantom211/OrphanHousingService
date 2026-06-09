@@ -35,7 +35,6 @@
                               ItemsSource="{Binding Contracts}"
                               SelectedItem="{Binding SelectedContract}"
                               IsEnabled="{Binding IsContractEditable}"
-                              IsEditable="True"
                               IsTextSearchEnabled="True"
                               DisplayMemberPath="ContractNumber"/>
                 </Grid>

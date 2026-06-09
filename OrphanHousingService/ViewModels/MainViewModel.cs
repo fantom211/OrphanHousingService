@@ -48,6 +48,9 @@ namespace OrphanHousingService.ViewModels
         [RelayCommand]
         private void OpenFamilyMembers() => OpenView<FamilyMembersViewModel>();
 
+        [RelayCommand]
+        private void OpenReports() => OpenView<ReportsViewModel>();
+
         public void NavigateToPerson(Guid personId)
         {
             var vm = OpenView<PeopleViewModel>();

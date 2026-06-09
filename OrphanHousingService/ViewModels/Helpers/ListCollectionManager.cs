@@ -44,6 +44,20 @@ namespace OrphanHousingService.ViewModels.Helpers
             View.Refresh();
         }
 
+        public T? RestoreSelection(Guid? selectedId, Func<T, Guid> idSelector)
+        {
+            if (!selectedId.HasValue)
+                return default;
+
+            foreach (var item in _source)
+            {
+                if (idSelector(item) == selectedId.Value)
+                    return item;
+            }
+
+            return default;
+        }
+
         public void ApplyDefaultSort()
         {
             View.SortDescriptions.Clear();

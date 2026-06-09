@@ -6,7 +6,6 @@ using OrphanHousingService.Models.Helpers;
 using OrphanHousingService.Services.Business;
 using OrphanHousingService.Services.Helpers;
 using OrphanHousingService.ViewModels.Helpers;
-using System;
 using System.Collections.ObjectModel;
 
 namespace OrphanHousingService.ViewModels.CrudViewModels
@@ -66,31 +65,33 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         {
             _utilityDebtService = utilityDebtService;
             _contractService = contractService;
-            _ = LoadAsync();
+        }
+
+        public async Task PrepareAsync()
+        {
+            await LoadContractsAsync();
         }
 
         partial void OnStatusChanged(UtilityDebtStatus value)
         {
             if (value != UtilityDebtStatus.Paid)
                 PaidDate = null;
-
             OnPropertyChanged(nameof(IsPaidDateEnabled));
         }
 
-        partial void OnIsContractLockedChanged(bool value)
-        {
+        partial void OnIsContractLockedChanged(bool value) =>
             OnPropertyChanged(nameof(IsContractEditable));
-        }
 
-        public void InitializeForContract(Guid contractId)
+        public async Task InitializeForContractAsync(Guid contractId)
         {
             _prefilledContractId = contractId;
             IsContractLocked = true;
             OnPropertyChanged(nameof(IsContractEditable));
-            _ = ApplyPrefilledContractAsync();
+            await LoadContractsAsync();
+            ApplyPrefilledSelection();
         }
 
-        public void InitializeForEdit(UtilityDebt debt)
+        public async Task InitializeForEditAsync(UtilityDebt debt)
         {
             _editId = debt.Id;
             WindowTitle = "Редактировать долг";
@@ -105,30 +106,24 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             IsContractLocked = true;
             OnPropertyChanged(nameof(IsContractEditable));
             OnPropertyChanged(nameof(IsPaidDateEnabled));
-            _ = ApplyPrefilledContractAsync();
+            await LoadContractsAsync();
+            ApplyPrefilledSelection();
         }
 
-        private async Task ApplyPrefilledContractAsync()
+        private async Task LoadContractsAsync()
+        {
+            var contracts = await _contractService.GetAllAsync();
+            Contracts.Clear();
+            foreach (var contract in contracts)
+                Contracts.Add(contract);
+        }
+
+        private void ApplyPrefilledSelection()
         {
             if (!_prefilledContractId.HasValue)
                 return;
 
-            if (Contracts.Count == 0)
-                await LoadAsync();
-
-            SelectedContract = Contracts.FirstOrDefault(c => c.Id == _prefilledContractId.Value);
-        }
-
-        private async Task LoadAsync()
-        {
-            var contracts = await _contractService.GetAllAsync();
-
-            Contracts.Clear();
-            foreach (var contract in contracts)
-                Contracts.Add(contract);
-
-            if (_prefilledContractId.HasValue)
-                SelectedContract = Contracts.FirstOrDefault(c => c.Id == _prefilledContractId.Value);
+            SelectedContract = EntityComboHelper.FindById(Contracts, _prefilledContractId.Value);
         }
 
         [RelayCommand]
@@ -183,9 +178,6 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
         }
 
         [RelayCommand]
-        private void Cancel()
-        {
-            CloseAction?.Invoke(false);
-        }
+        private void Cancel() => CloseAction?.Invoke(false);
     }
 }

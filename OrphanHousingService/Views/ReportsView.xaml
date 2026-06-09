@@ -1,0 +1,139 @@
+<UserControl x:Class="OrphanHousingService.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Style="{StaticResource CardBorder}"
+                Margin="0,0,0,12"
+                Padding="16">
+            <StackPanel>
+                <TextBlock Text="Формирование отчётов"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,12"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Content="Сформировать отчёт"
+                            Command="{Binding GenerateReportCommand}"
+                            Style="{StaticResource ToolbarButton}"/>
+                    <Button Content="Экспорт в Word"
+                            Command="{Binding ExportToWordCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Margin="0,0,8,0"/>
+                </StackPanel>
+
+                <CheckBox Content="Ограничить период"
+                          IsChecked="{Binding UsePeriodFilter}"
+                          Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12"
+                      IsEnabled="{Binding UsePeriodFilter}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="160"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="С"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource DetailLabelText}"
+                               Margin="0,0,8,0"/>
+                    <DatePicker Grid.Column="1"
+                                SelectedDate="{Binding PeriodFrom, Mode=TwoWay}"
+                                Margin="0,0,16,0"/>
+                    <TextBlock Grid.Column="2"
+                               Text="По"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource DetailLabelText}"
+                               Margin="0,0,8,0"/>
+                    <DatePicker Grid.Column="3"
+                                SelectedDate="{Binding PeriodTo, Mode=TwoWay}"/>
+                </Grid>
+
+                <TextBlock Text="Примечания (необязательно):"
+                           Style="{StaticResource DetailLabelText}"
+                           Margin="0,0,0,6"/>
+                <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ModernMultilineTextBox}"
+                         MaxHeight="80"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Padding="20">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel DataContext="{Binding CurrentReport}">
+                    <TextBlock Text="{Binding ReportTitle}"
+                               Style="{StaticResource DetailWindowTitle}"/>
+                    <TextBlock Margin="0,0,0,16">
+                        <Run Text="Дата генерации: "/>
+                        <Run Text="{Binding GeneratedAt, StringFormat=dd.MM.yyyy HH:mm}"/>
+                    </TextBlock>
+                    <TextBlock Margin="0,0,0,16"
+                               Text="{Binding Period.DisplayText, Mode=OneWay, StringFormat=Период: {0}}"/>
+
+                    <TextBlock Text="Квартиры" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,8"/>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="120"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Всего квартир" Margin="0,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ApartmentStatistics.TotalApartments}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Передано в спец. жилой фонд" Margin="0,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ApartmentStatistics.SpecialHousingFund}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Передано в социальный найм" Margin="0,4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ApartmentStatistics.SocialHousing}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Передано в жилищный фонд" Margin="0,4"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ApartmentStatistics.HousingFund}" FontWeight="SemiBold" Margin="0,4"/>
+                    </Grid>
+
+                    <TextBlock Text="Договоры" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,8"/>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="120"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Всего договоров" Margin="0,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ContractStatistics.TotalContracts}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Активных договоров" Margin="0,4"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ContractStatistics.ActiveContracts}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Перезаключённых договоров" Margin="0,4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ContractStatistics.RenegotiatedContracts}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Продлённых договоров" Margin="0,4"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ContractStatistics.ExtendedContracts}" FontWeight="SemiBold" Margin="0,4"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Сокращённых договоров" Margin="0,4"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding ContractStatistics.TerminatedContracts}" FontWeight="SemiBold" Margin="0,4"/>
+                    </Grid>
+
+                    <TextBlock Text="Дополнительная информация"
+                               FontWeight="SemiBold"
+                               FontSize="15"
+                               Margin="0,0,0,8"
+                               Visibility="{Binding AdditionalInfo.Notes, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                    <TextBlock Text="{Binding AdditionalInfo.Notes}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding AdditionalInfo.Notes, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

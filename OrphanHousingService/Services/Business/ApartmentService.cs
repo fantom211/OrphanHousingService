@@ -19,7 +19,9 @@ namespace OrphanHousingService.Services.Business
 
         public async Task<List<Apartment>> GetAllAsync()
         {
-            return await _context.Apartments.ToListAsync();
+            return await _context.Apartments
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task CreateAsync(Apartment apartment)
@@ -60,7 +62,8 @@ namespace OrphanHousingService.Services.Business
 
         public async Task UpdateAsync(Apartment apartment)
         {
-            var existing = await GetByIdAsync(apartment.Id);
+            var existing = await _context.Apartments
+                .FirstOrDefaultAsync(a => a.Id == apartment.Id);
             if (existing == null)
                 throw new Exception("Квартира не найдена");
 
@@ -94,14 +97,22 @@ namespace OrphanHousingService.Services.Business
             string? reason,
             bool syncApartment = true)
         {
-            var apartment = await GetByIdAsync(id);
-            if (apartment == null)
+            var exists = await _context.Apartments.AnyAsync(a => a.Id == id);
+            if (!exists)
                 throw new Exception("Квартира не найдена");
 
             if (syncApartment)
-                apartment.CurrentStatus = status;
+            {
+                var updated = await _context.Apartments
+                    .Where(a => a.Id == id)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(a => a.CurrentStatus, status));
 
-            apartment.StatusHistory.Add(new ApartmentStatusHistory
+                if (updated == 0)
+                    throw new Exception("Квартира не найдена");
+            }
+
+            await _context.ApartmentStatusHistories.AddAsync(new ApartmentStatusHistory
             {
                 Id = Guid.NewGuid(),
                 ApartmentId = id,

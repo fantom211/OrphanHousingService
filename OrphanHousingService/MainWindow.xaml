@@ -75,6 +75,9 @@
                     <Button Content="Состав семьи"
                             Command="{Binding OpenFamilyMembersCommand}"
                             Style="{StaticResource SidebarButton}"/>
+                    <Button Content="Отчёты"
+                            Command="{Binding OpenReportsCommand}"
+                            Style="{StaticResource SidebarButton}"/>
                 </StackPanel>
             </DockPanel>
         </Border>

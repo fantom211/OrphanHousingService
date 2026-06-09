@@ -86,7 +86,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             Comment = decision.Comment;
             NotifyEditabilityChanged();
             await LoadApplicationsAsync();
-            SelectedApplication = Applications.FirstOrDefault(a => a.Id == decision.ApplicationId);
+            SelectedApplication = EntityComboHelper.FindById(Applications, decision.ApplicationId);
         }
 
         public async Task InitializeForApplicationAsync(Application application, DecisionResult result)
@@ -102,7 +102,7 @@ namespace OrphanHousingService.ViewModels.CrudViewModels
             SelectedApplication = application;
             NotifyEditabilityChanged();
             await LoadApplicationsAsync();
-            SelectedApplication = Applications.FirstOrDefault(a => a.Id == application.Id) ?? application;
+            SelectedApplication = EntityComboHelper.FindById(Applications, application.Id) ?? application;
         }
 
         private void NotifyEditabilityChanged()

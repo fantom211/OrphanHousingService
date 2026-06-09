@@ -22,7 +22,6 @@
                               ItemsSource="{Binding Applications}"
                               SelectedItem="{Binding SelectedApplication}"
                               IsEnabled="{Binding IsApplicationEditable}"
-                              IsEditable="True"
                               IsTextSearchEnabled="True"
                               DisplayMemberPath="ApplicationNumber"/>
                 </Grid>

@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:OrphanHousingService"
              xmlns:vm="clr-namespace:OrphanHousingService.ViewModels"
-             xmlns:views="clr-namespace:OrphanHousingService.Views">
+             xmlns:views="clr-namespace:OrphanHousingService.Views"
+             xmlns:models="clr-namespace:OrphanHousingService.Models.Helpers">
     
     <Application.Resources>
         <ResourceDictionary>
@@ -12,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <models:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
 
             <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}"/>
             <Style TargetType="ComboBox" BasedOn="{StaticResource ModernComboBox}"/>
@@ -48,6 +50,10 @@
 
             <DataTemplate DataType="{x:Type vm:FamilyMembersViewModel}">
                 <views:FamilyMembersView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:ReportsViewModel}">
+                <views:ReportsView/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

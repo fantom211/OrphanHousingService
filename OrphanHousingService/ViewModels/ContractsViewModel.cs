@@ -52,10 +52,12 @@ namespace OrphanHousingService.ViewModels
 
         public async Task LoadAsync()
         {
+            var selectedId = SelectedContract?.Id;
             UtilityDebts.Clear();
             var contracts = await _contractService.GetAllAsync();
             _listManager.SetItems(contracts);
-            SelectedContract = Contracts.Cast<Contract>().FirstOrDefault();
+            SelectedContract = _listManager.RestoreSelection(selectedId, c => c.Id)
+                ?? Contracts.Cast<Contract>().FirstOrDefault();
         }
 
         partial void OnSelectedContractChanged(Contract? value)
@@ -74,6 +76,7 @@ namespace OrphanHousingService.ViewModels
         {
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
+            await vm.PrepareAsync();
             var window = new AddContractView(vm)
             {
                 Owner = System.Windows.Application.Current.MainWindow
@@ -91,7 +94,7 @@ namespace OrphanHousingService.ViewModels
 
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddContractViewModel>();
-            vm.InitializeForEdit(SelectedContract);
+            await vm.InitializeForEditAsync(SelectedContract);
 
             var window = new AddContractView(vm)
             {
@@ -161,7 +164,7 @@ namespace OrphanHousingService.ViewModels
 
             using var scope = _scopeFactory.CreateScope();
             var vm = scope.ServiceProvider.GetRequiredService<AddUtilityDebtViewModel>();
-            vm.InitializeForContract(SelectedContract.Id);
+            await vm.InitializeForContractAsync(SelectedContract.Id);
 
             var window = new AddUtilityDebtView(vm)
             {

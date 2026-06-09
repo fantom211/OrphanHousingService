@@ -19,6 +19,7 @@ namespace OrphanHousingService.Services.Business
         public async Task<List<ApartmentStatusHistory>> GetAllAsync()
         {
             return await _context.ApartmentStatusHistories
+                .AsNoTracking()
                 .Include(h => h.Apartment)
                 .ToListAsync();
         }
@@ -34,12 +35,10 @@ namespace OrphanHousingService.Services.Business
 
             await base.AddAsync(history);
 
-            var apartment = await _context.Apartments.FindAsync(history.ApartmentId);
-            if (apartment != null)
-            {
-                apartment.CurrentStatus = history.Status;
-                await SaveChangesAsync();
-            }
+            await _context.Apartments
+                .Where(a => a.Id == history.ApartmentId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(a => a.CurrentStatus, history.Status));
         }
     }
 }
