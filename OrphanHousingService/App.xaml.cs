@@ -57,6 +57,9 @@ namespace OrphanHousingService
             await Task.Run(RunDatabaseStartupInternal).ConfigureAwait(true);
 
             vm.Initialize();
+
+
+
             base.OnStartup(e);
         }
 
@@ -97,7 +100,7 @@ namespace OrphanHousingService
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<OrphanHousingDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
             //Окна
             services.AddSingleton<MainWindow>();

@@ -39,7 +39,7 @@
                         <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="ФИО:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Text="ФИО родственника:" Style="{StaticResource DetailLabelText}"/>
                     <TextBlock Grid.Column="1" Text="{Binding FamilyMember.FullName}" Style="{StaticResource DetailValueText}"/>
                 </Grid>
             </Border>

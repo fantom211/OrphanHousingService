@@ -77,7 +77,7 @@
                         <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Дата включения в фонд:" Style="{StaticResource DetailLabelText}"/>
+                    <TextBlock Text="Дата включения в фонд:" Style="{StaticResource DetailLabelText}" Margin="-7,0,5,0"/>
                     <DatePicker Grid.Column="1" SelectedDate="{Binding IncludedToFundDate}"/>
                 </Grid>
             </Border>
